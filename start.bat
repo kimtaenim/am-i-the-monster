@@ -1,55 +1,50 @@
 @echo off
 chcp 65001 > nul
-title Am I the Monster? - Rojo
+title Am I the Monster?
 cd /d "%~dp0"
 
 echo ==========================================
-echo   Am I the Monster?  개발 서버 켜기
+echo   Am I the Monster?
 echo ==========================================
 echo.
 
-rem 1) 최신 코드 받기 (git으로 받은 폴더일 때만)
+rem 1) 최신 코드 받기
 if exist ".git" (
     where git > nul 2> nul
-    if errorlevel 1 (
-        echo [!] git이 없어서 최신 코드를 못 받았어요. 지금 폴더 그대로 켤게요.
-    ) else (
-        echo [1/3] GitHub에서 최신 코드를 받는 중...
+    if not errorlevel 1 (
+        echo [1/4] GitHub에서 최신 코드를 받는 중...
         git pull
     )
-) else (
-    echo [1/3] git으로 받은 폴더가 아니라서 최신 코드 받기는 건너뛰어요.
 )
-echo.
 
-rem 2) rojo가 없으면 이 폴더에 내려받고, Studio 플러그인도 설치해요
+rem 2) rojo 확인 (없으면 이 폴더에 내려받기)
 where rojo > nul 2> nul
 if errorlevel 1 (
-    echo [2/3] rojo가 없어서 내려받는 중... 처음 한 번만 해요.
+    echo [2/4] rojo 내려받는 중... 처음 한 번만 해요.
     powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://github.com/rojo-rbx/rojo/releases/download/v7.4.4/rojo-7.4.4-windows-x86_64.zip' -OutFile 'rojo.zip'; Expand-Archive -Force 'rojo.zip' '.'; Remove-Item 'rojo.zip'"
-    if not exist "rojo.exe" (
-        echo [X] rojo 내려받기에 실패했어요. 인터넷 연결을 확인하고 다시 실행해 주세요.
-        pause
-        exit /b 1
-    )
-    echo      Roblox Studio에 Rojo 플러그인을 설치하는 중...
     rojo plugin install
-    echo      설치 끝! Studio가 켜져 있었다면 껐다가 다시 켜 주세요.
-) else (
-    echo [2/3] rojo 준비 완료.
 )
-echo.
 
-rem 바탕화면 바로가기가 없으면 만들어요 (처음 한 번)
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=[Environment]::GetFolderPath('Desktop'); $l=Join-Path $d 'Am I the Monster.lnk'; if (-not (Test-Path $l)) { $s=(New-Object -ComObject WScript.Shell).CreateShortcut($l); $s.TargetPath='%~dp0start.bat'; $s.WorkingDirectory='%~dp0'; $s.IconLocation='%SystemRoot%\System32\shell32.dll,137'; $s.Save(); Write-Host '     바탕화면에 [Am I the Monster] 바로가기를 만들었어요.' }"
+rem 바탕화면 바로가기 (처음 한 번)
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=[Environment]::GetFolderPath('Desktop'); $l=Join-Path $d 'Am I the Monster.lnk'; if (-not (Test-Path $l)) { $s=(New-Object -ComObject WScript.Shell).CreateShortcut($l); $s.TargetPath='%~dp0start.bat'; $s.WorkingDirectory='%~dp0'; $s.IconLocation='%SystemRoot%\System32\shell32.dll,137'; $s.Save() }"
 
-echo [3/3] Rojo 서버를 켰어요!
+rem 3) 최신 코드로 게임 파일 만들기
+echo [3/4] 게임 파일 만드는 중...
+rojo build default.project.json -o AmITheMonster.rbxlx
+if errorlevel 1 (
+    echo [X] 게임 파일 만들기에 실패했어요. 이 창의 글씨를 Claude에게 보여 주세요.
+    pause
+    exit /b 1
+)
+
+rem 4) Roblox Studio로 열기
+echo [4/4] Roblox Studio 켜는 중...
+start "" "%~dp0AmITheMonster.rbxlx"
+
 echo.
-echo   이제 Roblox Studio에서
-echo     1. 새 Baseplate 를 열고
-echo     2. 위쪽 [플러그인] 탭의 Rojo 버튼을 누른 뒤
-echo     3. [Connect] 를 누르세요.
-echo   끝내려면 이 창을 닫으면 돼요.
+echo   Studio가 열리면 바로 Play 를 누르면 돼요.
+echo   이 창은 Rojo 서버예요. 테스트하는 동안 켜 두세요.
+echo   (게임 중에 코드가 바뀌면 Studio의 Rojo - Connect 로 바로 받아올 수 있어요)
 echo.
 rojo serve default.project.json
 pause

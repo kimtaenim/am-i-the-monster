@@ -4,9 +4,8 @@
 
 ## 가장 쉬운 방법 (Windows)
 
-- **`start.bat`** 더블클릭 → 최신 코드를 받고 Rojo 서버를 켜요. Studio에서 Rojo 플러그인 **Connect** 를 누르면 끝.
-- **`build.bat`** 더블클릭 → 최신 코드로 `AmITheMonster.rbxlx` 장소 파일을 만들고 Studio로 열어요. (플러그인 필요 없음)
-- 처음 실행하면 `start.bat`이 rojo와 Studio용 Rojo 플러그인을 알아서 설치해요.
+바탕화면 **Am I the Monster** 바로가기(처음엔 이 폴더의 `start.bat`)를 더블클릭하면 끝이에요.
+최신 코드 받기 → 게임 파일 만들기 → Roblox Studio 열기 → Rojo 서버 켜기를 알아서 해요. Studio가 열리면 ▶ Play만 누르세요.
 
 ## Studio에서 열기 (Rojo)
 
