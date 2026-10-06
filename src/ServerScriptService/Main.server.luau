@@ -5,6 +5,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 
+local Config = require(ReplicatedStorage.Config)
 local Remotes = require(ReplicatedStorage.Remotes)
 local Lines = require(ReplicatedStorage.Dialogue.Lines)
 
@@ -77,6 +78,18 @@ GameLoop.ExpeditionStarted:Connect(function()
 	S.Gathering.RefillDaily()
 	S.Hunting.RefillAll()
 end)
+
+-- 살아 있는 고고학자가 3명 이하가 되면 괴물 승리
+local function checkSurvivors()
+	if GameLoop.GetPhase() == "Result" then
+		return
+	end
+	local alive = #S.Roster.GetAlive()
+	if alive <= Config.Rules.MonsterWinSurvivors then
+		GameLoop.EndExpedition("Monster", string.format("살아남은 고고학자가 %d명뿐이야...", alive))
+	end
+end
+S.Health.BecameGhost:Connect(checkSurvivors)
 
 GameLoop.PhaseStarted:Connect(function(phase: string, day: number)
 	if phase == "Day" and day > 1 then
