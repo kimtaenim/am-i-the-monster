@@ -80,6 +80,8 @@ Config.Fire = {
 	PromptDistance = 8,
 	WoodPerChop = 1,
 	WoodSpotsActivePerDay = 24, -- 하루에 장작을 얻을 수 있는 나무 수
+	WarnBeforeNightSeconds = 20, -- 밤이 오기 이만큼 전에 장작이 없으면 다시 경고해요
+	WarnBlinkSeconds = 0.5, -- 화면 장작 숫자가 깜박이는 간격
 }
 
 ----------------------------------------------------------------

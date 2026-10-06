@@ -20,6 +20,7 @@ local gui = player:WaitForChild("PlayerGui"):WaitForChild("MainGui")
 local DARK = Color3.fromRGB(20, 24, 18)
 local WHITE = Color3.new(1, 1, 1)
 local PANEL_TRANSPARENCY = 0.35
+local LOW_WOOD = Color3.fromRGB(255, 90, 70)
 
 local PHASE_BANNERS = {
 	Day = "☀️ %d일째 낮 : 유물·장작·식량을 찾아!",
@@ -91,7 +92,15 @@ local function refreshTop()
 	else
 		phaseLabel.Text = string.format("%s %d일째 %s   ⏱ %s", info.Icon, GameState.Get("Day"), info.Name, formatTime(left))
 	end
-	campLabel.Text = string.format("모닥불 장작 🪵 %d    식량 창고 🍖 %d", GameState.Get("Wood"), GameState.Get("Food"))
+	local wood = GameState.Get("Wood")
+	campLabel.Text = string.format("모닥불 장작 🪵 %d    식량 창고 🍖 %d", wood, GameState.Get("Food"))
+	-- 장작이 모자라면 빨갛게 깜박여요
+	if wood <= Config.Fire.BurnPerNight then
+		local blinkOn = math.floor(os.clock() / Config.Fire.WarnBlinkSeconds) % 2 == 0
+		campLabel.TextColor3 = blinkOn and LOW_WOOD or WHITE
+	else
+		campLabel.TextColor3 = WHITE
+	end
 end
 
 ----------------------------------------------------------------

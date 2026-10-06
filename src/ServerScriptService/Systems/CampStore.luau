@@ -8,6 +8,8 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Config = require(ReplicatedStorage.Config)
 local GameState = require(ReplicatedStorage.GameState)
 local MapBuilder = require(ServerScriptService.Systems.MapBuilder)
+local Lines = require(ReplicatedStorage.Dialogue.Lines)
+local Remotes = require(ReplicatedStorage.Remotes)
 
 local FIRE = Config.Fire
 
@@ -70,6 +72,31 @@ function CampStore.IsInLight(position: Vector3): boolean
 	local fire = MapBuilder.Info.FirePosition
 	local offset = Vector3.new(position.X - fire.X, 0, position.Z - fire.Z)
 	return offset.Magnitude <= CampStore.GetLightRadius()
+end
+
+-- 모닥불 경고 문장 채우기
+local function warningText(key: string): string
+	local text = Lines.FireWarnings[key]
+	text = string.gsub(text, "{개수}", tostring(CampStore.GetWood()))
+	text = string.gsub(text, "{태움}", tostring(FIRE.BurnPerNight))
+	return text
+end
+
+-- 첫날 아침 : 모닥불 규칙 안내
+function CampStore.TellRules()
+	Remotes.Narration:FireAllClients(warningText("Tutorial"))
+end
+
+-- 장작이 모자라면 모두에게 알려요. moment : "Day" 또는 "Evening"
+function CampStore.WarnIfLow(moment: string)
+	local wood = CampStore.GetWood()
+	if wood <= 0 then
+		-- 이대로 밤이 오면 진다 : 화면 가운데 큰 경고
+		Remotes.Narration:FireAllClients(warningText(moment == "Evening" and "EveningEmpty" or "Empty"))
+	elseif wood <= FIRE.BurnPerNight then
+		-- 오늘 밤은 버티지만 내일 밤이 위험해요
+		Remotes.Notify:FireAllClients(warningText("Low"))
+	end
 end
 
 function CampStore.Reset()

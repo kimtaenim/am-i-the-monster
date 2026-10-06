@@ -98,7 +98,28 @@ S.Health.BecameGhost:Connect(checkSurvivors)
 -- 괴물의 정체가 밝혀지고 남은 사람들을 모두 잡아요
 GameLoop.SetMonsterEnding(S.Ending.PlayHorror)
 
+-- 모닥불 경고 : 낮 시작, 낮 중간, 저녁 시작, 밤 직전
+local function warnLater(seconds: number, phase: string, day: number)
+	task.delay(seconds / Config.Time.TestSpeed, function()
+		if GameLoop.GetPhase() == phase and GameLoop.GetDay() == day then
+			S.CampStore.WarnIfLow(phase)
+		end
+	end)
+end
+
 GameLoop.PhaseStarted:Connect(function(phase: string, day: number)
+	if phase == "Day" then
+		if day == 1 then
+			S.CampStore.TellRules()
+		else
+			S.CampStore.WarnIfLow("Day")
+		end
+		warnLater(Config.Time.DaySeconds / 2, "Day", day)
+	elseif phase == "Evening" then
+		S.CampStore.WarnIfLow("Evening")
+		warnLater(Config.Time.EveningSeconds - Config.Fire.WarnBeforeNightSeconds, "Evening", day)
+	end
+
 	if phase == "Day" and day > 1 then
 		-- 새 하루 : 유물이 다시 묻히고, 장작·식량·사냥감이 다시 나와요
 		S.Excavation.RefillAll()
