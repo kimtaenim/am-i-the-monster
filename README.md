@@ -6,7 +6,7 @@
 
 - **`start.bat`** 더블클릭 → 최신 코드를 받고 Rojo 서버를 켜요. Studio에서 Rojo 플러그인 **Connect** 를 누르면 끝.
 - **`build.bat`** 더블클릭 → 최신 코드로 `AmITheMonster.rbxlx` 장소 파일을 만들고 Studio로 열어요. (플러그인 필요 없음)
-- rojo가 없다고 나오면 [Rojo 릴리스](https://github.com/rojo-rbx/rojo/releases)에서 `rojo-7.4.4-windows-x86_64.zip`을 받아 `rojo.exe`를 이 폴더에 넣어요.
+- 처음 실행하면 `start.bat`이 rojo와 Studio용 Rojo 플러그인을 알아서 설치해요.
 
 ## Studio에서 열기 (Rojo)
 

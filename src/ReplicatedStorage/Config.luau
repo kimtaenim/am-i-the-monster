@@ -82,8 +82,9 @@ Config.Hunt = {
 		Spear = { Name = "창", Icon = "🔱", Kind = "Throw", Damage = 2, Cooldown = 1.2, Speed = 75, Gravity = 35, MaxDistance = 75 },
 		Axe = { Name = "도끼", Icon = "🪓", Kind = "Melee", Damage = 2, Cooldown = 0.7, Range = 9 },
 		Bow = { Name = "활", Icon = "🏹", Kind = "Throw", Damage = 1, Cooldown = 0.8, Speed = 150, Gravity = 18, MaxDistance = 140 },
+		Slingshot = { Name = "새총", Icon = "🪨", Kind = "Throw", Damage = 1, Cooldown = 0.5, Speed = 110, Gravity = 30, MaxDistance = 100 },
 	},
-	WeaponOrder = { "Spear", "Axe", "Bow" }, -- 캠프 무기 거치대에 놓이는 순서
+	WeaponOrder = { "Spear", "Axe", "Bow", "Slingshot" }, -- 캠프 무기 거치대에 놓이는 순서
 	TakeWeaponSeconds = 0.5,
 
 	-- 사냥감 : 기절하면 고기를 떨어뜨려요
@@ -490,6 +491,7 @@ Config.Colors = {
 	WeaponWood = Color3.fromRGB(120, 85, 50),
 	WeaponStone = Color3.fromRGB(110, 110, 115),
 	BowString = Color3.fromRGB(230, 225, 210),
+	SlingBand = Color3.fromRGB(150, 60, 40),
 	HitFlash = Color3.fromRGB(255, 255, 255),
 }
 

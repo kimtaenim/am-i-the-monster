@@ -18,7 +18,7 @@ if not errorlevel 1 (
 
 where rojo > nul 2> nul
 if errorlevel 1 (
-    echo [X] rojo를 찾을 수 없어요. start.bat 안내를 보고 rojo.exe 를 이 폴더에 넣어 주세요.
+    echo [X] rojo가 없어요. start.bat 을 먼저 한 번 실행해 주세요. 자동으로 설치돼요.
     pause
     exit /b 1
 )

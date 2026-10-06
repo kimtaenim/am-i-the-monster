@@ -1,4 +1,4 @@
--- 창·도끼·활을 만들고, 캠프 무기 거치대에서 들 수 있게 해요. 무기는 한 번에 하나만 들어요.
+-- 창·도끼·활·새총을 만들고, 캠프 무기 거치대에서 들 수 있게 해요. 무기는 한 번에 하나만 들어요.
 -- 무기를 쓰면 서버가 맞았는지 판정해요. 창·화살은 날아가고, 도끼는 앞을 휘둘러요.
 -- 무기는 사냥감에게만 맞아요. 사람과 NPC는 그냥 통과해요.
 
@@ -70,9 +70,19 @@ local WEAPON_SHAPES = {
 			toolPart(parent, "String", Vector3.new(0.05, 0.05, 4.4), handle.CFrame * CFrame.new(0, 0.95, 0), COLORS.BowString, Enum.Material.Fabric)
 		end,
 	},
+	Slingshot = {
+		HandleSize = Vector3.new(0.3, 0.3, 1.4),
+		GripZ = -0.3,
+		Extra = function(parent, handle)
+			-- Y자 갈래 두 개와 고무줄
+			toolPart(parent, "ForkLeft", Vector3.new(0.25, 0.25, 1.1), handle.CFrame * CFrame.new(-0.3, 0, 1.1) * CFrame.Angles(0, -0.5, 0), COLORS.WeaponWood)
+			toolPart(parent, "ForkRight", Vector3.new(0.25, 0.25, 1.1), handle.CFrame * CFrame.new(0.3, 0, 1.1) * CFrame.Angles(0, 0.5, 0), COLORS.WeaponWood)
+			toolPart(parent, "Band", Vector3.new(1.3, 0.08, 0.08), handle.CFrame * CFrame.new(0, 0, 1.55), COLORS.SlingBand, Enum.Material.Fabric)
+		end,
+	},
 }
 
--- 날아가는 것(창, 화살)의 모양
+-- 날아가는 것(창, 화살, 돌멩이)의 모양
 local PROJECTILE_SHAPES = {
 	Spear = function(model)
 		local shaft = toolPart(model, "Shaft", Vector3.new(0.3, 0.3, 6), CFrame.new(), COLORS.WeaponWood)
@@ -84,6 +94,9 @@ local PROJECTILE_SHAPES = {
 		toolPart(model, "Tip", Vector3.new(0.25, 0.25, 0.4), CFrame.new(0, 0, 1.4) * CFrame.Angles(0, 0, math.pi / 4), COLORS.WeaponStone, Enum.Material.Slate)
 		toolPart(model, "Feather", Vector3.new(0.05, 0.35, 0.5), CFrame.new(0, 0, -1.1), COLORS.BowString, Enum.Material.Fabric)
 		return shaft
+	end,
+	Slingshot = function(model)
+		return toolPart(model, "Pebble", Vector3.one * 0.5, CFrame.new(), COLORS.WeaponStone, Enum.Material.Slate, Enum.PartType.Ball)
 	end,
 }
 
