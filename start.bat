@@ -40,6 +40,9 @@ if errorlevel 1 (
 )
 echo.
 
+rem 바탕화면 바로가기가 없으면 만들어요 (처음 한 번)
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=[Environment]::GetFolderPath('Desktop'); $l=Join-Path $d 'Am I the Monster.lnk'; if (-not (Test-Path $l)) { $s=(New-Object -ComObject WScript.Shell).CreateShortcut($l); $s.TargetPath='%~dp0start.bat'; $s.WorkingDirectory='%~dp0'; $s.IconLocation='%SystemRoot%\System32\shell32.dll,137'; $s.Save(); Write-Host '     바탕화면에 [Am I the Monster] 바로가기를 만들었어요.' }"
+
 echo [3/3] Rojo 서버를 켰어요!
 echo.
 echo   이제 Roblox Studio에서
