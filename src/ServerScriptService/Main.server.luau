@@ -12,6 +12,8 @@ local Wildlife = require(Systems.Wildlife)
 
 local mapInfo = MapBuilder.Build()
 Wildlife.Build(mapInfo)
+MapBuilder.MoveToOrigin()
+MapBuilder.DisableStraySpawns()
 
 -- 순서가 중요해요 : 아래 시스템이 위 시스템을 쓸 수 있어요
 local INIT_ORDER = {
@@ -26,7 +28,6 @@ local INIT_ORDER = {
 	"Excavation",
 	"DialogueService",
 	"NightLog",
-	"Roster",
 	"NpcManager",
 	"Sleep",
 	"Monster",
@@ -34,10 +35,46 @@ local INIT_ORDER = {
 	"Vote",
 	"Ghost",
 	"DayCycle",
-	"GameLoop", -- 맨 마지막 : 하루를 돌리기 시작해요
+	"Roster", -- 다른 시스템들이 귀를 기울인 다음에 "고고학자가 들어왔어"를 알려요
 }
 
+local S = {}
 for _, name in INIT_ORDER do
-	local system = require(Systems[name])
-	system.Init()
+	S[name] = require(Systems[name])
+	S[name].Init()
 end
+local GameLoop = require(Systems.GameLoop)
+
+----------------------------------------------------------------
+-- 시간이 바뀔 때 할 일 (하루의 흐름)
+----------------------------------------------------------------
+
+-- 새 탐사 : 창고·소지품·체력을 처음으로 되돌리고 유물·장작·식량·사냥감을 채워요
+GameLoop.ExpeditionStarted:Connect(function()
+	S.CampStore.Reset()
+	S.Inventory.Reset()
+	S.Health.Reset()
+	for _, who in S.Roster.GetAll() do
+		S.Gathering.ClearCarried(who)
+	end
+	S.Excavation.RefillAll()
+	S.Gathering.RefillDaily()
+	S.Hunting.RefillAll()
+end)
+
+GameLoop.PhaseStarted:Connect(function(phase: string, day: number)
+	if phase == "Day" and day > 1 then
+		-- 새 하루 : 유물이 다시 묻히고, 장작·식량·사냥감이 다시 나와요
+		S.Excavation.RefillAll()
+		S.Gathering.RefillDaily()
+		S.Hunting.RefillAll()
+	elseif phase == "Evening" then
+		S.Health.EveningMeal()
+	elseif phase == "Night" then
+		if not S.CampStore.BurnForNight() then
+			GameLoop.EndExpedition("Monster", "모닥불이 꺼져서 괴물이 캠프를 덮쳤어...")
+		end
+	end
+end)
+
+GameLoop.Init() -- 맨 마지막 : 하루를 돌리기 시작해요

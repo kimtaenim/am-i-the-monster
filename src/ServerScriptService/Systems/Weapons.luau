@@ -264,7 +264,7 @@ local function launch(weaponId: string, origin: Vector3, direction: Vector3)
 		position += step
 		travelled += step.Magnitude
 		model:PivotTo(aim(position, velocity))
-		if travelled > def.MaxDistance or position.Y < -Config.Map.GroundThickness then
+		if travelled > def.MaxDistance or position.Y < MapBuilder.Info.Center.Y - Config.Map.GroundThickness then
 			connection:Disconnect()
 			model:Destroy()
 		end

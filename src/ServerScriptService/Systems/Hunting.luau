@@ -113,26 +113,28 @@ local function flat(v: Vector3): Vector3
 	return Vector3.new(v.X, 0, v.Z)
 end
 
--- 지도 안, 캠프 밖으로 위치를 맞춰요
+-- 지도 안, 캠프 밖으로 위치를 맞춰요 (지도 가운데 기준으로 계산하고 실제 위치로 돌려줘요)
 local function clampToJungle(pos: Vector3): Vector3
+	local center = MapBuilder.Info.Center
 	local limit = Config.Map.HalfSize - H.MapEdgeMargin
-	local p = Vector3.new(math.clamp(pos.X, -limit, limit), 0, math.clamp(pos.Z, -limit, limit))
+	local p = Vector3.new(math.clamp(pos.X - center.X, -limit, limit), 0, math.clamp(pos.Z - center.Z, -limit, limit))
 	local minDist = Config.Map.CampClearRadius
 	if p.Magnitude < minDist then
 		p = (p.Magnitude > 0 and p.Unit or Vector3.xAxis) * minDist
 	end
-	return p
+	return p + center
 end
 
 local function randomSpawnPoint(): Vector3
+	local center = MapBuilder.Info.Center
 	local limit = Config.Map.HalfSize - H.MapEdgeMargin
 	for _ = 1, Config.Map.PlaceTries do
 		local p = Vector3.new(rng:NextNumber(-limit, limit), 0, rng:NextNumber(-limit, limit))
 		if p.Magnitude >= H.MinSpawnDistance then
-			return p
+			return p + center
 		end
 	end
-	return Vector3.new(H.MinSpawnDistance, 0, 0)
+	return Vector3.new(H.MinSpawnDistance, 0, 0) + center
 end
 
 -- 사냥감을 놀라게 하는 것들 : 플레이어와 NPC 고고학자
@@ -246,7 +248,7 @@ local function dropMeat(position: Vector3, amount: number)
 	base.Material = Enum.Material.SmoothPlastic
 	base.Anchored = true
 	base.CanCollide = false
-	base.CFrame = CFrame.new(flat(position) + Vector3.new(0, 0.8, 0))
+	base.CFrame = CFrame.new(Vector3.new(position.X, MapBuilder.Info.Center.Y + 0.8, position.Z))
 	base.Parent = model
 	local bone = Instance.new("Part")
 	bone.Shape = Enum.PartType.Cylinder
@@ -421,7 +423,7 @@ local function think(prey, threats, now)
 		local away = flat(pos - prey.FleeFrom)
 		away = away.Magnitude > 0 and away.Unit or Vector3.new(rng:NextNumber(-1, 1), 0, rng:NextNumber(-1, 1)).Unit
 		prey.Humanoid.WalkSpeed = prey.Def.FleeSpeed
-		prey.Humanoid:MoveTo(clampToJungle(flat(pos) + away * H.FleeDistance))
+		prey.Humanoid:MoveTo(clampToJungle(pos + away * H.FleeDistance))
 		return
 	end
 

@@ -281,6 +281,7 @@ local function placeSwampAnimals(folder, swamps)
 			model:SetAttribute("CenterX", swamp.Pos.X)
 			model:SetAttribute("CenterZ", swamp.Pos.Z)
 			model:SetAttribute("Radius", swamp.Size * 0.25)
+			model:SetAttribute("Height", 0.1)
 			model:SetAttribute("Phase", rng:NextNumber(0, TAU))
 			buildCroc(model, cf)
 		end

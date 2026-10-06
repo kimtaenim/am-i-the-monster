@@ -289,6 +289,19 @@ local function buildCamp(root: Folder)
 	light.Parent = flame
 
 	fire.PrimaryPart = flame
+
+	-- 안전지대 테두리 : 밤에 빛이 닿는 곳을 보여줘요 (크기는 DayCycle이 장작 수에 맞춰 바꿔요)
+	local ring = makeDecor({
+		Name = "SafeRing",
+		Parent = camp,
+		Shape = Enum.PartType.Cylinder,
+		Size = Vector3.new(Config.Camp.SafeRingHeight, 1, 1),
+		CFrame = CFrame.new(0, Config.Camp.SafeRingHeight / 2, 0) * UPRIGHT,
+		Color = COLORS.FireLight,
+		Material = Enum.Material.Neon,
+		Transparency = 1,
+	})
+	info.SafeRing = ring
 	info.FirePosition = Vector3.zero
 	info.FireFlame = flame
 	info.FireLight = light
@@ -754,6 +767,7 @@ local function buildWoodSpot(model: Model, treePos: Vector3, index: number)
 	spot:SetAttribute("WoodSpotId", index)
 	for i = 1, 3 do
 		makeDecor({
+			Name = "WoodPiece",
 			Parent = model,
 			Shape = Enum.PartType.Cylinder,
 			Size = Vector3.new(3.2, 0.5, 0.5),
@@ -1069,6 +1083,60 @@ function MapBuilder.SetupLighting()
 end
 
 ----------------------------------------------------------------
+-- 다 만든 지도를 Config.Map.Origin 자리로 옮겨요
+-- (베이스플레이트 한가운데·같은 높이와 겹쳐서 깨지지 않게)
+----------------------------------------------------------------
+
+function MapBuilder.MoveToOrigin()
+	local info = MapBuilder.Info
+	local offset = MAP.Origin
+	local parts, frames = {}, {}
+	for _, item in info.Root:GetDescendants() do
+		if item:IsA("BasePart") then
+			table.insert(parts, item)
+			table.insert(frames, item.CFrame + offset)
+		end
+		-- 동물이 기억하는 위치(원 중심, 오르내리는 높이)도 같이 옮겨요
+		if item:GetAttribute("CenterX") then
+			item:SetAttribute("CenterX", item:GetAttribute("CenterX") + offset.X)
+			item:SetAttribute("CenterZ", item:GetAttribute("CenterZ") + offset.Z)
+		end
+		if item:GetAttribute("Bottom") then
+			item:SetAttribute("Bottom", item:GetAttribute("Bottom") + offset.Y)
+			item:SetAttribute("Top", item:GetAttribute("Top") + offset.Y)
+		end
+		if item:GetAttribute("Height") and item:GetAttribute("CenterX") then
+			item:SetAttribute("Height", item:GetAttribute("Height") + offset.Y)
+		end
+	end
+	Workspace:BulkMoveTo(parts, frames, Enum.BulkMoveMode.FireCFrameChanged)
+
+	info.Center = offset
+	info.FirePosition += offset
+	for _, list in { info.Tents, info.Ruins } do
+		for _, entry in list do
+			entry.Position += offset
+		end
+	end
+	for _, list in { info.Trees, info.Swamps, info.Bushes } do
+		for _, entry in list do
+			entry.Pos += offset
+		end
+	end
+end
+
+-- 다른 출발 지점(베이스플레이트 템플릿의 SpawnLocation 등)은 꺼요. 지우지는 않아요.
+function MapBuilder.DisableStraySpawns()
+	local handMade = Workspace:FindFirstChild("HandMade")
+	for _, item in Workspace:GetDescendants() do
+		if item:IsA("SpawnLocation") and item ~= MapBuilder.Info.Spawn and not (handMade and item:IsDescendantOf(handMade)) then
+			item.Enabled = false
+			print("[MapBuilder] 다른 출발 지점을 껐어요:", item:GetFullName())
+		end
+	end
+end
+
+----------------------------------------------------------------
 -- 전부 만들기
 ----------------------------------------------------------------
 
@@ -1104,6 +1172,8 @@ function MapBuilder.Build()
 		FireFlame = camp.FireFlame,
 		FireLight = camp.FireLight,
 		FireEffect = camp.FireEffect,
+		SafeRing = camp.SafeRing,
+		Center = Vector3.zero, -- MoveToOrigin 후에는 Config.Map.Origin
 		WoodPile = camp.WoodPile,
 		WoodLabel = camp.WoodLabel,
 		FoodStore = camp.FoodStore,

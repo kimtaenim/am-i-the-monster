@@ -22,6 +22,8 @@ Config.Time = {
 	MaxDays = 7, -- 탐사 최대 일수
 	ResultSeconds = 20, -- 결과 화면 보여주는 시간
 	TestSpeed = 1, -- 테스트용 배속 (2면 모든 시간이 절반)
+	LightingUpdateSeconds = 0.1, -- 하늘·안개를 바꾸는 간격
+	EndCheckSeconds = 0.25, -- 탐사가 끝났는지 확인하는 간격
 
 	-- 하늘 시계 (Lighting.ClockTime, 0~24)
 	ClockDayStart = 7,
@@ -50,8 +52,21 @@ Config.Fire = {
 	RadiusPerWood = 3, -- 장작 1개마다 늘어나는 반경
 	MaxLightRadius = 45, -- 최대 빛 반경
 	ChopSeconds = 3, -- 장작 줍는 시간
+	PromptDistance = 8,
 	WoodPerChop = 1,
-	WoodSpotsActivePerDay = 14, -- 하루에 장작을 얻을 수 있는 나무 수
+	WoodSpotsActivePerDay = 24, -- 하루에 장작을 얻을 수 있는 나무 수
+}
+
+----------------------------------------------------------------
+-- 캠프
+----------------------------------------------------------------
+Config.Camp = {
+	DeliverRadius = 22, -- 모닥불에서 이 거리 안에 오면 들고 온 장작·식량을 내려놔요
+	DeliverCheckSeconds = 0.5,
+	SafeRingTransparency = 0.8, -- 밤에 보이는 안전지대 테두리
+	SafeRingHeight = 0.2,
+	EmberRadius = 6, -- 장작이 0개일 때 남은 불씨 빛
+	LightBrightness = 2.5,
 }
 
 ----------------------------------------------------------------
@@ -60,18 +75,21 @@ Config.Fire = {
 Config.Food = {
 	StartFood = 6,
 	GatherSeconds = 2,
+	PromptDistance = 8,
 	FoodPerGather = 1,
-	SpotsActivePerDay = 14, -- 하루에 나오는 식량 개수
+	SpotsActivePerDay = 30, -- 하루에 나오는 식량 자리 수
 	EatPerPerson = 1,
 }
 
 Config.Health = {
 	Max = 3,
+	Start = 3,
 	LoseWhenHungry = 1,
 	GainWhenFed = 1,
 	-- 괴물에게 잡혔을 때 뿌리칠 확률 (체력 → 확률)
 	EscapeChance = { [3] = 0.5, [2] = 0.25, [1] = 0 },
 	EscapeCost = 1, -- 뿌리치면 깎이는 체력
+	GhostTransparency = 0.6, -- 유령 몸 투명도
 }
 
 ----------------------------------------------------------------
@@ -82,16 +100,16 @@ Config.Hunt = {
 		Spear = { Name = "창", Icon = "🔱", Kind = "Throw", Damage = 2, Cooldown = 1.2, Speed = 75, Gravity = 35, MaxDistance = 75 },
 		Axe = { Name = "도끼", Icon = "🪓", Kind = "Melee", Damage = 2, Cooldown = 0.7, Range = 9 },
 		Bow = { Name = "활", Icon = "🏹", Kind = "Throw", Damage = 1, Cooldown = 0.8, Speed = 150, Gravity = 18, MaxDistance = 140 },
-		Slingshot = { Name = "새총", Icon = "🪨", Kind = "Throw", Damage = 1, Cooldown = 0.5, Speed = 110, Gravity = 30, MaxDistance = 100 },
+		Slingshot = { Name = "새총", Icon = "🪨", Kind = "Throw", Damage = 2, Cooldown = 0.35, Speed = 140, Gravity = 25, MaxDistance = 120 },
 	},
 	WeaponOrder = { "Spear", "Axe", "Bow", "Slingshot" }, -- 캠프 무기 거치대에 놓이는 순서
 	TakeWeaponSeconds = 0.5,
 
 	-- 사냥감 : 기절하면 고기를 떨어뜨려요
 	Prey = {
-		Boar = { Name = "멧돼지", Count = 4, Health = 3, Food = 3, WalkSpeed = 8, FleeSpeed = 17, Skittish = 12 },
-		Capybara = { Name = "카피바라", Count = 5, Health = 2, Food = 2, WalkSpeed = 6, FleeSpeed = 14, Skittish = 14 },
-		Fowl = { Name = "정글닭", Count = 8, Health = 1, Food = 1, WalkSpeed = 7, FleeSpeed = 19, Skittish = 16 },
+		Boar = { Name = "멧돼지", Count = 6, Health = 3, Food = 3, WalkSpeed = 8, FleeSpeed = 17, Skittish = 12 },
+		Capybara = { Name = "카피바라", Count = 8, Health = 2, Food = 2, WalkSpeed = 6, FleeSpeed = 14, Skittish = 14 },
+		Fowl = { Name = "정글닭", Count = 12, Health = 1, Food = 1, WalkSpeed = 7, FleeSpeed = 19, Skittish = 16 },
 	},
 	MinSpawnDistance = 60, -- 캠프에서 이만큼 떨어진 곳에 나타나요
 	WanderRadius = 30, -- 집 주변 어슬렁거리는 범위
@@ -114,6 +132,7 @@ Config.Hunt = {
 ----------------------------------------------------------------
 Config.Dig = {
 	DigSeconds = 4,
+	PromptDistance = 10,
 	MinPerRuinPerDay = 2,
 	MaxPerRuinPerDay = 3,
 }
@@ -184,7 +203,9 @@ Config.UI = {
 	NotifyFadeSeconds = 0.5,
 	MaxNotifies = 3, -- 한 번에 보이는 알림 수
 	NotifyTextSize = 24,
-	NotifyTop = 60, -- 화면 위에서 떨어진 거리 (픽셀)
+	NotifyTop = 110, -- 화면 위에서 떨어진 거리 (픽셀)
+	BannerSeconds = 3, -- "밤이 됐어" 큰 글씨가 떠 있는 시간
+	HudTextSize = 22,
 }
 
 ----------------------------------------------------------------
@@ -203,7 +224,9 @@ Config.Save = {
 ----------------------------------------------------------------
 Config.Map = {
 	Seed = 20261006, -- 같은 숫자면 항상 같은 정글이 만들어져요
-	HalfSize = 200, -- 지도 가운데에서 끝까지 거리
+	HalfSize = 350, -- 지도 가운데에서 끝까지 거리
+	-- 지도 가운데(모닥불) 위치. 베이스플레이트 한가운데·같은 높이를 피해서 겹쳐 깨지지 않게 해요
+	Origin = Vector3.new(450, 30, 450),
 	GroundThickness = 4,
 	WallHeight = 80, -- 보이지 않는 벽 높이
 
@@ -240,16 +263,16 @@ Config.Map = {
 
 	-- 유적 터
 	RuinCount = 8,
-	RuinMinRadius = 105,
-	RuinMaxRadius = 165,
+	RuinMinRadius = 150,
+	RuinMaxRadius = 300,
 	RuinAngleJitter = 0.25, -- 각도 흔들림 (라디안)
-	RuinClearRadius = 20, -- 유적 주변엔 나무를 안 심어요
+	RuinClearRadius = 22, -- 유적 주변엔 나무를 안 심어요
 	DigSpotOffset = 9, -- 유적 앞 몇 스터드에 발굴 자리가 있나
 	DigSpotSize = Vector3.new(6, 1.6, 6),
 
 	-- 나무
-	TreeCount = 75,
-	ChoppableTreeCount = 26,
+	TreeCount = 230,
+	ChoppableTreeCount = 50,
 	TreeSpacing = 11,
 	TreeHeightMin = 18,
 	TreeHeightMax = 32,
@@ -263,24 +286,24 @@ Config.Map = {
 	BoundaryInset = 6,
 
 	-- 식량
-	FoodSpotCount = 34,
+	FoodSpotCount = 70,
 	FoodSpotSpacing = 9,
 
 	-- 장식
-	BushCount = 170,
-	VineCount = 110,
+	BushCount = 420,
+	VineCount = 260,
 	VineLengthMin = 6,
 	VineLengthMax = 16,
-	FallenLogCount = 8,
+	FallenLogCount = 16,
 	FallenLogLengthMin = 28,
 	FallenLogLengthMax = 44,
 	FallenLogDiameterMin = 4,
 	FallenLogDiameterMax = 6.5,
-	SwampCount = 7,
+	SwampCount = 12,
 	SwampSizeMin = 18,
 	SwampSizeMax = 34,
 	ReedsPerSwamp = 6,
-	MossStatueCount = 6,
+	MossStatueCount = 12,
 	PlaceTries = 60, -- 빈자리 찾기 시도 횟수
 }
 
@@ -314,7 +337,7 @@ Config.Atmosphere = {
 	CloudColor = Color3.fromRGB(150, 155, 150),
 
 	-- 땅에 깔리는 물안개
-	MistSpotCount = 18, -- 늪 말고도 정글 곳곳에 생기는 안개
+	MistSpotCount = 35, -- 늪 말고도 정글 곳곳에 생기는 안개
 	MistRate = 1.2,
 	MistLifetime = 9,
 	MistSize = 14,
@@ -327,19 +350,19 @@ Config.Atmosphere = {
 ----------------------------------------------------------------
 Config.Wildlife = {
 	-- 몇 마리?
-	Parrots = 14, -- 앵무새 (낮, 나무 위)
-	Toucans = 6, -- 큰부리새 (낮, 나무 위)
-	BirdFlocks = 3, -- 하늘을 도는 새 떼 (낮)
+	Parrots = 24, -- 앵무새 (낮, 나무 위)
+	Toucans = 10, -- 큰부리새 (낮, 나무 위)
+	BirdFlocks = 5, -- 하늘을 도는 새 떼 (낮)
 	BirdsPerFlock = 6,
-	Monkeys = 10, -- 원숭이 (나무줄기 오르내리기)
+	Monkeys = 18, -- 원숭이 (나무줄기 오르내리기)
 	FrogsPerSwamp = 3, -- 개구리 (늪가에서 폴짝)
 	CrocMinSwampSize = 24, -- 이보다 큰 늪엔 악어 눈이 떠 있어요
-	Lizards = 8, -- 도마뱀 (유적 돌 위)
-	Butterflies = 16, -- 나비 (낮)
-	Owls = 8, -- 부엉이 (밤에 눈이 빛나요)
-	Bats = 10, -- 박쥐 (밤)
-	FireflyClusters = 14, -- 반딧불 (밤)
-	EyePairs = 14, -- 덤불 속에서 빛나는 눈 (밤, 다가가면 사라져요)
+	Lizards = 12, -- 도마뱀 (유적 돌 위)
+	Butterflies = 28, -- 나비 (낮)
+	Owls = 14, -- 부엉이 (밤에 눈이 빛나요)
+	Bats = 16, -- 박쥐 (밤)
+	FireflyClusters = 24, -- 반딧불 (밤)
+	EyePairs = 24, -- 덤불 속에서 빛나는 눈 (밤, 다가가면 사라져요)
 
 	BranchLength = 4, -- 새가 앉는 나뭇가지 길이
 
@@ -350,8 +373,8 @@ Config.Wildlife = {
 	BirdFlyChancePerSecond = 0.04, -- 앉아 있던 새가 날아오를 확률
 	BirdFlySeconds = 6,
 	BirdFlyRadius = 14,
-	FlockRadiusMin = 40,
-	FlockRadiusMax = 90,
+	FlockRadiusMin = 60,
+	FlockRadiusMax = 130,
 	FlockHeight = 45,
 	FlockSpeed = 0.18, -- 1초에 도는 각도 (라디안)
 	MonkeyClimbSpeed = 0.35,
