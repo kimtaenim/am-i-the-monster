@@ -75,6 +75,40 @@ Config.Health = {
 }
 
 ----------------------------------------------------------------
+-- 사냥 (무기는 동물에게만 맞아요. 사람·NPC에게는 안 맞아요)
+----------------------------------------------------------------
+Config.Hunt = {
+	Weapons = {
+		Spear = { Name = "창", Icon = "🔱", Kind = "Throw", Damage = 2, Cooldown = 1.2, Speed = 75, Gravity = 35, MaxDistance = 75 },
+		Axe = { Name = "도끼", Icon = "🪓", Kind = "Melee", Damage = 2, Cooldown = 0.7, Range = 9 },
+		Bow = { Name = "활", Icon = "🏹", Kind = "Throw", Damage = 1, Cooldown = 0.8, Speed = 150, Gravity = 18, MaxDistance = 140 },
+	},
+	WeaponOrder = { "Spear", "Axe", "Bow" }, -- 캠프 무기 거치대에 놓이는 순서
+	TakeWeaponSeconds = 0.5,
+
+	-- 사냥감 : 기절하면 고기를 떨어뜨려요
+	Prey = {
+		Boar = { Name = "멧돼지", Count = 4, Health = 3, Food = 3, WalkSpeed = 8, FleeSpeed = 17, Skittish = 12 },
+		Capybara = { Name = "카피바라", Count = 5, Health = 2, Food = 2, WalkSpeed = 6, FleeSpeed = 14, Skittish = 14 },
+		Fowl = { Name = "정글닭", Count = 8, Health = 1, Food = 1, WalkSpeed = 7, FleeSpeed = 19, Skittish = 16 },
+	},
+	MinSpawnDistance = 60, -- 캠프에서 이만큼 떨어진 곳에 나타나요
+	WanderRadius = 30, -- 집 주변 어슬렁거리는 범위
+	WanderPauseMin = 2,
+	WanderPauseMax = 6,
+	ThinkSeconds = 0.5,
+	FleeSeconds = 4,
+	FleeDistance = 35,
+	HitFlashSeconds = 0.25,
+	FaintSeconds = 1, -- 기절해서 사라지는 시간
+	DropLifetime = 120, -- 떨어진 고기가 남아 있는 시간
+	PickupSeconds = 1,
+	StuckSeconds = 3, -- 빗나간 화살·창이 땅에 꽂혀 있는 시간
+	AimMaxDistance = 400,
+	MapEdgeMargin = 12,
+}
+
+----------------------------------------------------------------
 -- 유물 발굴
 ----------------------------------------------------------------
 Config.Dig = {
@@ -142,6 +176,17 @@ Config.Dialogue = {
 }
 
 ----------------------------------------------------------------
+-- 화면 (UI)
+----------------------------------------------------------------
+Config.UI = {
+	NotifySeconds = 3, -- 알림 한 줄이 떠 있는 시간
+	NotifyFadeSeconds = 0.5,
+	MaxNotifies = 3, -- 한 번에 보이는 알림 수
+	NotifyTextSize = 24,
+	NotifyTop = 60, -- 화면 위에서 떨어진 거리 (픽셀)
+}
+
+----------------------------------------------------------------
 -- 점수 저장
 ----------------------------------------------------------------
 Config.Save = {
@@ -177,6 +222,10 @@ Config.Map = {
 	SeatLogRadius = 10,
 	SeatLogLength = 6,
 	SeatLogDiameter = 1.4,
+
+	-- 무기 거치대 (창·도끼·활)
+	WeaponRackPosition = Vector3.new(12, 0, -16),
+	WeaponRackSpacing = 4,
 
 	-- 장작 더미 · 식량 창고
 	WoodPilePosition = Vector3.new(14, 0, 10),
@@ -426,6 +475,22 @@ Config.Colors = {
 	GlowEye = Color3.fromRGB(255, 230, 90),
 	Croc = Color3.fromRGB(55, 75, 45),
 	Firefly = Color3.fromRGB(220, 255, 120),
+
+	-- 사냥감과 무기
+	Boar = Color3.fromRGB(95, 80, 70),
+	BoarSnout = Color3.fromRGB(190, 140, 130),
+	Tusk = Color3.fromRGB(245, 240, 225),
+	Capybara = Color3.fromRGB(150, 105, 65),
+	CapybaraNose = Color3.fromRGB(60, 45, 35),
+	Fowl = Color3.fromRGB(170, 70, 35),
+	FowlComb = Color3.fromRGB(220, 30, 40),
+	FowlTail = Color3.fromRGB(30, 80, 60),
+	Meat = Color3.fromRGB(175, 90, 60),
+	Bone = Color3.fromRGB(245, 240, 225),
+	WeaponWood = Color3.fromRGB(120, 85, 50),
+	WeaponStone = Color3.fromRGB(110, 110, 115),
+	BowString = Color3.fromRGB(230, 225, 210),
+	HitFlash = Color3.fromRGB(255, 255, 255),
 }
 
 return Config

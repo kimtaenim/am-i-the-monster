@@ -21,6 +21,7 @@ local EVENT_NAMES = {
 	"GhostMessage", -- 유령 메시지 버튼
 	"ExpeditionResult", -- 탐사 결과
 	"Leaderboard", -- 리더보드
+	"UseWeapon", -- 무기 쓰기 (조준한 위치)
 }
 
 local Remotes = {}

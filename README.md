@@ -2,6 +2,12 @@
 
 정글 유적에서 유물을 캐는 고고학자들 사이에 저주받은 사람이 숨어 있어요. 밤마다 괴물로 변하는 그 사람을 찾아내는 로블록스 게임이에요.
 
+## 가장 쉬운 방법 (Windows)
+
+- **`start.bat`** 더블클릭 → 최신 코드를 받고 Rojo 서버를 켜요. Studio에서 Rojo 플러그인 **Connect** 를 누르면 끝.
+- **`build.bat`** 더블클릭 → 최신 코드로 `AmITheMonster.rbxlx` 장소 파일을 만들고 Studio로 열어요. (플러그인 필요 없음)
+- rojo가 없다고 나오면 [Rojo 릴리스](https://github.com/rojo-rbx/rojo/releases)에서 `rojo-7.4.4-windows-x86_64.zip`을 받아 `rojo.exe`를 이 폴더에 넣어요.
+
 ## Studio에서 열기 (Rojo)
 
 1. [Rojo 7](https://rojo.space/docs/v7/getting-started/installation/) CLI와 Roblox Studio 플러그인을 설치해요.

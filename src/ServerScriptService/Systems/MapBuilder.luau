@@ -345,6 +345,33 @@ local function buildCamp(root: Folder)
 	info.FoodStore = foodStore
 	info.FoodLabel = makeLabel(crate, "🍌 식량", MAP.StoreLabelHeight - 1.5)
 
+	-- 무기 거치대 : 받침대마다 무기가 하나씩 걸려요 (무기 모양은 Weapons가 올려요)
+	local rack = makeModel("WeaponRack", camp)
+	local order = Config.Hunt.WeaponOrder
+	local rackCF = CFrame.lookAt(MAP.WeaponRackPosition, Vector3.new(0, 0, MAP.WeaponRackPosition.Z))
+	makePart({
+		Parent = rack,
+		Shape = Enum.PartType.Cylinder,
+		Size = Vector3.new(MAP.WeaponRackSpacing * #order + 1, 0.8, 0.8),
+		CFrame = rackCF * CFrame.new(0, 0.4, 0),
+		Color = COLORS.Log,
+		Material = Enum.Material.Wood,
+	})
+	info.WeaponStands = {}
+	for i, weaponId in order do
+		local x = (i - (#order + 1) / 2) * MAP.WeaponRackSpacing
+		local stand = makePart({
+			Name = "WeaponStand",
+			Parent = rack,
+			Size = Vector3.new(0.6, 5, 0.6),
+			CFrame = rackCF * CFrame.new(x, 2.5, 0),
+			Color = COLORS.Log,
+			Material = Enum.Material.Wood,
+		})
+		stand:SetAttribute("WeaponId", weaponId)
+		table.insert(info.WeaponStands, stand)
+	end
+
 	reserve(Vector3.zero, MAP.CampClearRadius)
 	return info
 end
@@ -1081,6 +1108,7 @@ function MapBuilder.Build()
 		WoodLabel = camp.WoodLabel,
 		FoodStore = camp.FoodStore,
 		FoodLabel = camp.FoodLabel,
+		WeaponStands = camp.WeaponStands,
 		Tents = tents,
 		Ruins = ruins,
 		WoodSpots = woodSpots,

@@ -21,6 +21,8 @@ local INIT_ORDER = {
 	"Curse",
 	"Health",
 	"Gathering",
+	"Hunting",
+	"Weapons",
 	"Excavation",
 	"DialogueService",
 	"NightLog",
