@@ -66,6 +66,7 @@ local function tellFogStory()
 end
 
 GameLoop.ExpeditionStarted:Connect(function()
+	S.NpcManager.ResetForExpedition()
 	S.CampStore.Reset()
 	S.Inventory.Reset()
 	S.Health.Reset()
@@ -84,6 +85,7 @@ GameLoop.PhaseStarted:Connect(function(phase: string, day: number)
 		S.Gathering.RefillDaily()
 		S.Hunting.RefillAll()
 	elseif phase == "Evening" then
+		S.Excavation.GuaranteeEveryone() -- 모두 유물 1개 이상 (저주를 정하기 전에)
 		S.Health.EveningMeal()
 	elseif phase == "Night" then
 		if not S.CampStore.BurnForNight() then

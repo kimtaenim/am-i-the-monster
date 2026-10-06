@@ -12,6 +12,7 @@ local MapBuilder = require(Systems.MapBuilder)
 local Roster = require(Systems.Roster)
 local CampStore = require(Systems.CampStore)
 local ScoreStore = require(Systems.ScoreStore)
+local Excavation = require(Systems.Excavation)
 
 local Gathering = {}
 
@@ -45,6 +46,7 @@ function Gathering.AddCarried(who: Instance, kind: string, amount: number)
 	if who:IsA("Player") then
 		Remotes.Notify:FireClient(who, string.format("%s %d개를 주웠어! 모닥불로 가져가자 (들고 있는 것 %d개)", KIND_LABELS[kind], amount, total))
 	end
+	Excavation.RollLuckyFind(who, kind == "Wood" and "나뭇가지 밑 흙 속에서" or "풀숲을 뒤지다가")
 end
 
 -- 들고 있는 것을 캠프 창고에 내려놔요
@@ -90,6 +92,7 @@ end
 
 local function setActive(entry, active: boolean)
 	entry.Active = active
+	entry.ReservedBy = nil
 	entry.Prompt.Enabled = active
 	setVisible(entry.Visuals, active)
 end
@@ -102,20 +105,20 @@ local function makeSpot(part: BasePart, visuals, actionText: string, objectText:
 	prompt.MaxActivationDistance = distance
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = part
-	local entry = { Spot = part, Prompt = prompt, Visuals = visuals, Active = true }
+	local entry = { Spot = part, Prompt = prompt, Visuals = visuals, Active = true, OnTaken = onTaken, ReservedBy = nil }
 	prompt.Triggered:Connect(function(player)
-		Gathering.TakeSpot(entry, player, onTaken)
+		Gathering.TakeSpot(entry, player)
 	end)
 	return entry
 end
 
 -- 자리 하나를 가져가요 (플레이어든 NPC든)
-function Gathering.TakeSpot(entry, who: Instance, onTaken)
+function Gathering.TakeSpot(entry, who: Instance)
 	if not entry.Active or Roster.IsGhost(who) then
 		return false
 	end
 	setActive(entry, false)
-	onTaken(who)
+	entry.OnTaken(who)
 	return true
 end
 

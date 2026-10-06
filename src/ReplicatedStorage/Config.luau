@@ -135,6 +135,7 @@ Config.Dig = {
 	PromptDistance = 10,
 	MinPerRuinPerDay = 2,
 	MaxPerRuinPerDay = 3,
+	LuckyFindChance = 0.25, -- 장작·식량·고기를 주울 때 유물을 우연히 발견할 확률
 }
 
 ----------------------------------------------------------------
@@ -179,12 +180,69 @@ Config.Vote = {
 ----------------------------------------------------------------
 Config.Npc = {
 	WalkSpeed = 14,
-	ThinkSeconds = 0.5, -- 가까운 NPC 생각 간격
-	FarThinkSeconds = 1.5, -- 플레이어와 먼 NPC 생각 간격
-	FarDistance = 120,
-	ChatChancePerMinute = 0.6,
 	Names = { "보라", "민준", "두부", "하늘", "초코", "봄이", "도윤", "서아", "지호", "루나", "단비", "호두" },
 	Title = "고고학자",
+	StartDelay = 2, -- 서버가 켜지고 첫 플레이어를 기다렸다가 NPC를 채워요
+
+	-- 생각하는 간격 : 플레이어와 멀리 있는 NPC는 느긋하게 (성능)
+	ThinkSeconds = 0.5,
+	FarThinkSeconds = 1.5,
+	PollSeconds = 0.15, -- 걷는 동안 도착했는지 확인하는 간격
+	FarPollSeconds = 0.4,
+	FarDistance = 120,
+
+	-- 낮에는 한 번 나갈 때마다 유물·장작·식량 셋 다 챙겨서 캠프로 돌아와요
+	WorkPause = 0.5, -- 일 끝나고 잠깐 쉬기
+
+	-- 길찾기
+	AgentRadius = 2,
+	AgentHeight = 5,
+	ArriveDistance = 4, -- 이만큼 가까우면 도착
+	NearWaypoint = 2.5, -- 중간 길목은 이만큼만 가까워도 다음으로
+	NearestChoices = 3, -- 가까운 몇 곳 중에서 고를까 (모두 같은 곳으로 몰리지 않게)
+	WaypointTimeout = 4, -- 한 걸음에 이 시간 넘게 걸리면 막힌 거예요
+	CampMeetRadiusMin = 8, -- 저녁·아침에 모이는 거리 (모닥불에서)
+	CampMeetRadiusMax = 15,
+	NightFireRadiusFactor = 0.6, -- 밤에는 빛 반경의 이 비율 안으로
+	NightFireMinRadius = 6,
+	TentChance = 0.3, -- 밤에 텐트로 숨는 NPC 비율
+
+	-- 교대 (드롭인)
+	LeaveSeconds = 6, -- "교대하러 간다" 하고 정글로 걸어가는 시간
+	LeaveWalkDistance = 60,
+	StatusSeconds = 3,
+
+	-- 모습
+	HatColor = Color3.fromRGB(205, 180, 125),
+	HatBandColor = Color3.fromRGB(90, 60, 35),
+	SkinColors = {
+		Color3.fromRGB(255, 220, 185),
+		Color3.fromRGB(234, 192, 150),
+		Color3.fromRGB(198, 145, 100),
+		Color3.fromRGB(150, 100, 70),
+	},
+	ShirtColors = {
+		Color3.fromRGB(190, 170, 120),
+		Color3.fromRGB(120, 140, 90),
+		Color3.fromRGB(160, 110, 70),
+		Color3.fromRGB(90, 120, 140),
+		Color3.fromRGB(170, 80, 70),
+		Color3.fromRGB(110, 100, 150),
+	},
+	PantsColors = {
+		Color3.fromRGB(110, 95, 70),
+		Color3.fromRGB(70, 70, 60),
+		Color3.fromRGB(95, 80, 60),
+	},
+	NameTagHeight = 3.6,
+	NameTagDistance = 70,
+
+	-- 걷기 애니메이션 (Roblox 기본 R15 애니메이션)
+	Animations = {
+		Idle = "507766388",
+		Walk = "507777826",
+	},
+	WalkAnimThreshold = 0.5, -- 이보다 빨리 움직이면 걷는 모습
 }
 
 ----------------------------------------------------------------

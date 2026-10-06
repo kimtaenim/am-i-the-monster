@@ -73,6 +73,19 @@ local function applyGhostLook(who: Instance)
 	end
 end
 
+-- 유령 모습 지우기 (새 탐사에서 NPC가 다시 살아날 때)
+local function clearGhostLook(who: Instance)
+	local character = Roster.GetCharacter(who)
+	if not character then
+		return
+	end
+	for _, part in character:GetDescendants() do
+		if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+			part.Transparency = 0
+		end
+	end
+end
+
 -- 쓰러져서 유령이 돼요
 function Health.MakeGhost(who: Instance, reason: string)
 	if Roster.IsGhost(who) then
@@ -137,6 +150,8 @@ function Health.Reset()
 		setHealth(who, HEALTH.Start)
 		if wasGhost and who:IsA("Player") and who.Character then
 			who:LoadCharacter() -- 유령 모습을 지우고 캠프에서 다시 시작
+		elseif wasGhost then
+			clearGhostLook(who)
 		end
 	end
 end
@@ -159,6 +174,9 @@ function Health.Init()
 			end
 		else
 			updateOverhead(who)
+			if Roster.IsGhost(who) then
+				applyGhostLook(who)
+			end
 		end
 	end
 	Roster.Joined:Connect(setup)
