@@ -10,7 +10,7 @@ echo ==========================================
 echo.
 
 where git > nul 2> nul
-if not errorlevel 1 (
+if not errorlevel 1 if exist ".git" (
     echo [1/3] GitHub에서 최신 코드를 받는 중...
     git pull
     echo.
