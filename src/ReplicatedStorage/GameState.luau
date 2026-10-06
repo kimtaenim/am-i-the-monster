@@ -48,6 +48,7 @@ GameState.PhaseInfo = {
 	Night = { Name = "밤", Icon = "🌙" },
 	Morning = { Name = "아침", Icon = "🌅" },
 	Result = { Name = "탐사 끝", Icon = "🏁" },
+	Ending = { Name = "공포의 밤", Icon = "👹" },
 }
 
 return GameState

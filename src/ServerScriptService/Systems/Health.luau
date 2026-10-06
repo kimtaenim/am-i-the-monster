@@ -87,7 +87,8 @@ local function clearGhostLook(who: Instance)
 end
 
 -- 쓰러져서 유령이 돼요
-function Health.MakeGhost(who: Instance, reason: string)
+-- quiet가 true면 "유령이 됐어" 알림을 띄우지 않아요 (공포 엔딩처럼 따로 연출할 때)
+function Health.MakeGhost(who: Instance, reason: string, quiet: boolean?)
 	if Roster.IsGhost(who) then
 		return
 	end
@@ -97,7 +98,9 @@ function Health.MakeGhost(who: Instance, reason: string)
 	who:SetAttribute("CarriedWood", 0)
 	who:SetAttribute("CarriedFood", 0)
 	local will = Inventory.DistributeWill(who, reason)
-	Remotes.Notify:FireAllClients(string.format("👻 %s이(가) 쓰러져서 유령이 됐어...", Roster.GetName(who)))
+	if not quiet then
+		Remotes.Notify:FireAllClients(string.format("👻 %s이(가) 쓰러져서 유령이 됐어...", Roster.GetName(who)))
+	end
 	Health.BecameGhost:Fire(who, reason, will)
 end
 

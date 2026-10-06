@@ -37,7 +37,25 @@ Config.Time = {
 -- 승패 규칙
 ----------------------------------------------------------------
 Config.Rules = {
-	MonsterWinSurvivors = 3, -- 살아 있는 고고학자가 이 수 이하가 되면 괴물 승리
+	MonsterWinSurvivors = 3, -- 살아 있는 고고학자가 이 수 이하가 되면 괴물 승리 (공포 엔딩)
+}
+
+----------------------------------------------------------------
+-- 공포 엔딩 (생존자 3명 이하일 때)
+----------------------------------------------------------------
+Config.Ending = {
+	IntroSeconds = 3, -- "안개가 걷히고..." 해설
+	RevealSeconds = 4, -- 괴물의 정체 공개
+	TransformSeconds = 3, -- 괴물로 변하는 장면
+	DashSeconds = 0.6, -- 괴물이 한 사람에게 달려드는 시간
+	CatchPauseSeconds = 1.2, -- 한 사람을 잡고 다음 사람까지 쉬는 시간
+	FinalSeconds = 5, -- 마지막 해설
+	CatchOffset = 3, -- 잡을 때 괴물이 멈추는 거리
+	FlashSeconds = 0.5, -- 하얀 번쩍임
+	DarkTransparency = 0.45, -- 화면을 덮는 어둠 (0 = 깜깜, 1 = 투명)
+	TintColor = Color3.fromRGB(255, 150, 150), -- 붉은 화면
+	TintBrightness = -0.15,
+	TintSaturation = -0.4,
 }
 
 ----------------------------------------------------------------
@@ -585,6 +603,12 @@ Config.Colors = {
 	BowString = Color3.fromRGB(230, 225, 210),
 	SlingBand = Color3.fromRGB(150, 60, 40),
 	HitFlash = Color3.fromRGB(255, 255, 255),
+
+	-- 괴물 (검은 그림자 석상)
+	MonsterBody = Color3.fromRGB(14, 14, 18),
+	MonsterCrack = Color3.fromRGB(45, 42, 50),
+	MonsterEye = Color3.fromRGB(255, 70, 40),
+	MonsterSmoke = Color3.fromRGB(20, 20, 25),
 }
 
 return Config

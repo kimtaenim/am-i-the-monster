@@ -22,6 +22,7 @@ local CLOCK = {
 	Night = { TIME.ClockEveningEnd, TIME.ClockNightEnd },
 	Morning = { TIME.ClockNightEnd, TIME.ClockMorningEnd },
 	Result = { TIME.ClockDayStart, TIME.ClockDayStart },
+	Ending = { 0, 0 }, -- 한밤중
 	Waiting = { TIME.ClockDayStart, TIME.ClockDayStart },
 }
 
@@ -43,7 +44,7 @@ end
 local function nightAmount(phase: string, k: number): number
 	if phase == "Evening" then
 		return k
-	elseif phase == "Night" then
+	elseif phase == "Night" or phase == "Ending" then
 		return 1
 	elseif phase == "Morning" then
 		return 1 - k

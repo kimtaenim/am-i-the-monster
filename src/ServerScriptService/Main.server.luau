@@ -37,6 +37,7 @@ local INIT_ORDER = {
 	"Trade",
 	"Vote",
 	"Ghost",
+	"Ending",
 	"DayCycle",
 	"Roster", -- 다른 시스템들이 귀를 기울인 다음에 "고고학자가 들어왔어"를 알려요
 }
@@ -67,6 +68,8 @@ local function tellFogStory()
 end
 
 GameLoop.ExpeditionStarted:Connect(function()
+	S.Ending.Cleanup()
+	S.Curse.Reset()
 	S.NpcManager.ResetForExpedition()
 	S.CampStore.Reset()
 	S.Inventory.Reset()
@@ -86,7 +89,8 @@ local function checkSurvivors()
 	end
 	local alive = #S.Roster.GetAlive()
 	if alive <= Config.Rules.MonsterWinSurvivors then
-		GameLoop.EndExpedition("Monster", string.format("살아남은 고고학자가 %d명뿐이야...", alive))
+		-- 공포 엔딩 : 괴물의 정체가 밝혀지고 남은 사람들을 모두 잡아요
+		GameLoop.EndExpedition("Monster", string.format("살아남은 고고학자가 %d명뿐이었어...", alive), S.Ending.PlayHorror)
 	end
 end
 S.Health.BecameGhost:Connect(checkSurvivors)
@@ -99,6 +103,7 @@ GameLoop.PhaseStarted:Connect(function(phase: string, day: number)
 		S.Hunting.RefillAll()
 	elseif phase == "Evening" then
 		S.Excavation.GuaranteeEveryone() -- 모두 유물 1개 이상 (저주를 정하기 전에)
+		S.Curse.Designate() -- 첫날 저녁 : 사람들이 캔 유물 중 하나가 저주 유물이 돼요 (서버만 알아요)
 		S.Health.EveningMeal()
 	elseif phase == "Night" then
 		if not S.CampStore.BurnForNight() then

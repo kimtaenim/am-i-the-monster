@@ -327,6 +327,8 @@ function NpcBrain:Start()
 					self:DoDay()
 				elseif self.Phase == "Night" then
 					self:DoNight()
+				elseif self.Phase == "Ending" or self.Phase == "Result" then
+					self:WaitUntilInterrupted() -- 엔딩·결과 화면에서는 가만히
 				else
 					self:DoCamp()
 				end

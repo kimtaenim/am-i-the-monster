@@ -35,10 +35,17 @@ function GameLoop.GetDay(): number
 end
 
 -- 다른 시스템이 탐사를 끝낼 때 불러요 (예 : 모닥불이 꺼짐, 범인 추방)
-function GameLoop.EndExpedition(winner: string, reason: string)
+-- sequence : 결과 화면 전에 보여 줄 연출 (예 : 공포 엔딩). 없어도 돼요
+function GameLoop.EndExpedition(winner: string, reason: string, sequence: (() -> ())?)
 	if not ending then
-		ending = { Winner = winner, Reason = reason }
+		ending = { Winner = winner, Reason = reason, Sequence = sequence }
 	end
+end
+
+-- 연출 중에 시간대 이름을 바꿀 때 (예 : "Ending")
+function GameLoop.SetSpecialPhase(phase: string, seconds: number)
+	GameState.Set("Phase", phase)
+	GameState.Set("PhaseEndsAt", Workspace:GetServerTimeNow() + seconds)
 end
 
 local function setPhase(phase: string, seconds: number)
@@ -80,6 +87,12 @@ end
 
 local function showResult()
 	local result = ending
+	if result.Sequence then
+		local ok, err = pcall(result.Sequence)
+		if not ok then
+			warn("[GameLoop] 엔딩 연출 오류:", err)
+		end
+	end
 	local seconds = TIME.ResultSeconds / TIME.TestSpeed
 	setPhase("Result", seconds)
 	GameLoop.ExpeditionEnded:Fire(result.Winner, result.Reason)

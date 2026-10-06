@@ -23,6 +23,7 @@ local EVENT_NAMES = {
 	"Leaderboard", -- 리더보드
 	"UseWeapon", -- 무기 쓰기 (조준한 위치)
 	"Narration", -- 화면 가운데 해설 (안개 이야기)
+	"Ending", -- 공포 엔딩 연출 (단계, 정보)
 }
 
 local Remotes = {}
