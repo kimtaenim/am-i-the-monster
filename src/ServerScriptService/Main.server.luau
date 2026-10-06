@@ -89,11 +89,14 @@ local function checkSurvivors()
 	end
 	local alive = #S.Roster.GetAlive()
 	if alive <= Config.Rules.MonsterWinSurvivors then
-		-- 공포 엔딩 : 괴물의 정체가 밝혀지고 남은 사람들을 모두 잡아요
-		GameLoop.EndExpedition("Monster", string.format("살아남은 고고학자가 %d명뿐이었어...", alive), S.Ending.PlayHorror)
+		GameLoop.EndExpedition("Monster", string.format("살아남은 고고학자가 %d명뿐이었어...", alive))
 	end
 end
 S.Health.BecameGhost:Connect(checkSurvivors)
+
+-- 괴물이 이기면 (생존자 3명 이하, 모닥불 꺼짐, 7일 동안 못 찾음) 언제나 공포 엔딩 :
+-- 괴물의 정체가 밝혀지고 남은 사람들을 모두 잡아요
+GameLoop.SetMonsterEnding(S.Ending.PlayHorror)
 
 GameLoop.PhaseStarted:Connect(function(phase: string, day: number)
 	if phase == "Day" and day > 1 then

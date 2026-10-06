@@ -24,7 +24,13 @@ GameLoop.ExpeditionStarted = Signal.new() -- ()
 GameLoop.PhaseStarted = Signal.new() -- (phase, day)
 GameLoop.ExpeditionEnded = Signal.new() -- (winner, reason) winner는 "Archaeologists" 또는 "Monster"
 
-local ending = nil -- 끝내 달라는 요청 { Winner, Reason }
+local ending = nil -- 끝내 달라는 요청 { Winner, Reason, Sequence }
+local monsterEnding = nil -- 괴물이 이길 때 기본으로 보여 줄 연출 (공포 엔딩)
+
+-- 괴물 승리 때 기본 연출을 정해요 (Main이 공포 엔딩을 넣어요)
+function GameLoop.SetMonsterEnding(sequence: () -> ())
+	monsterEnding = sequence
+end
 
 function GameLoop.GetPhase(): string
 	return GameState.Get("Phase")
@@ -87,8 +93,9 @@ end
 
 local function showResult()
 	local result = ending
-	if result.Sequence then
-		local ok, err = pcall(result.Sequence)
+	local sequence = result.Sequence or (result.Winner == "Monster" and monsterEnding or nil)
+	if sequence then
+		local ok, err = pcall(sequence)
 		if not ok then
 			warn("[GameLoop] 엔딩 연출 오류:", err)
 		end
