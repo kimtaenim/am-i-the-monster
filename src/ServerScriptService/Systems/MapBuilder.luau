@@ -579,11 +579,13 @@ end
 
 local function buildSwamps(root: Folder)
 	local folder = makeFolder("Swamps", root)
+	local swamps = {}
 	for _ = 1, MAP.SwampCount do
 		local size = rng:NextNumber(MAP.SwampSizeMin, MAP.SwampSizeMax)
 		local pos = findFreeSpot(size / 2, size)
 		if pos then
 			reserve(pos, size / 2)
+			table.insert(swamps, { Pos = pos, Size = size })
 			local model = makeModel("Swamp", folder)
 			-- 진흙 테두리
 			makeDecor({
@@ -621,6 +623,7 @@ local function buildSwamps(root: Folder)
 			end
 		end
 	end
+	return swamps
 end
 
 local function buildFallenLogs(root: Folder)
@@ -706,7 +709,7 @@ local function buildTree(folder: Instance, pos: Vector3, simple: boolean)
 		})
 		table.insert(leaves, leaf)
 	end
-	return model, leaves
+	return model, leaves, height, trunkD
 end
 
 -- 장작을 주울 수 있는 나뭇가지 더미
@@ -739,12 +742,14 @@ local function buildTrees(root: Folder)
 	local folder = makeFolder("Trees", root)
 	local leafBalls = {}
 	local woodSpots = {}
+	local trees = {} -- 동물들이 앉을 나무 정보
 
 	for i = 1, MAP.TreeCount do
 		local pos = findFreeSpot(MAP.TreeSpacing / 2, MAP.BoundaryInset * 2)
 		if pos then
 			reserve(pos, MAP.TreeSpacing / 2)
-			local model, leaves = buildTree(folder, pos, false)
+			local model, leaves, height, trunkD = buildTree(folder, pos, false)
+			table.insert(trees, { Pos = pos, Height = height, TrunkRadius = trunkD / 2, Model = model })
 			for _, leaf in leaves do
 				table.insert(leafBalls, leaf)
 			end
@@ -788,7 +793,7 @@ local function buildTrees(root: Folder)
 		})
 	end
 
-	return woodSpots
+	return woodSpots, trees
 end
 
 ----------------------------------------------------------------
@@ -921,11 +926,13 @@ end
 
 local function buildBushes(root: Folder)
 	local folder = makeFolder("Bushes", root)
+	local bushes = {}
 	for _ = 1, MAP.BushCount do
 		local size = rng:NextNumber(3, 6)
 		local pos = findFreeSpot(size / 2, MAP.BoundaryInset)
 		if pos then
 			reserve(pos, size / 3)
+			table.insert(bushes, { Pos = pos, Size = size })
 			makeDecor({
 				Parent = folder,
 				Shape = Enum.PartType.Ball,
@@ -935,6 +942,55 @@ local function buildBushes(root: Folder)
 				Material = Enum.Material.Grass,
 			})
 		end
+	end
+	return bushes
+end
+
+----------------------------------------------------------------
+-- 땅에 깔리는 물안개 (늪 위와 정글 곳곳)
+----------------------------------------------------------------
+
+local MIST_TEXTURE = "rbxasset://textures/particles/smoke_main.dds"
+
+local function addMist(folder: Instance, pos: Vector3, width: number)
+	local A = Config.Atmosphere
+	local emitterPart = makeDecor({
+		Name = "Mist",
+		Parent = folder,
+		Size = Vector3.new(width, 1, width),
+		CFrame = CFrame.new(pos + Vector3.new(0, 1, 0)),
+		Transparency = 1,
+	})
+	local mist = Instance.new("ParticleEmitter")
+	mist.Texture = MIST_TEXTURE
+	mist.Rate = A.MistRate
+	mist.Lifetime = NumberRange.new(A.MistLifetime * 0.7, A.MistLifetime)
+	mist.Size = NumberSequence.new(A.MistSize * 0.6, A.MistSize)
+	mist.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.4, A.MistTransparency),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	mist.Color = ColorSequence.new(A.MistColor)
+	mist.Speed = NumberRange.new(0.3, 1)
+	mist.SpreadAngle = Vector2.new(180, 10)
+	mist.Rotation = NumberRange.new(0, 360)
+	mist.RotSpeed = NumberRange.new(-8, 8)
+	mist.LightInfluence = 1
+	mist.Shape = Enum.ParticleEmitterShape.Box
+	mist.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+	mist.Parent = emitterPart
+end
+
+local function buildMist(root: Folder, swamps)
+	local folder = makeFolder("Mist", root)
+	for _, swamp in swamps do
+		addMist(folder, swamp.Pos, swamp.Size)
+	end
+	local limit = MAP.HalfSize - MAP.BoundaryInset * 2
+	for _ = 1, Config.Atmosphere.MistSpotCount do
+		local pos = Vector3.new(rng:NextNumber(-limit, limit), 0, rng:NextNumber(-limit, limit))
+		addMist(folder, pos, Config.Atmosphere.MistSize * 2)
 	end
 end
 
@@ -961,6 +1017,28 @@ function MapBuilder.SetupLighting()
 	Lighting.OutdoorAmbient = A.DayAmbient
 	Lighting.Brightness = A.DayBrightness
 	Lighting.GlobalShadows = true
+
+	-- 색을 살짝 빼서 축축하고 음산하게
+	local correction = Lighting:FindFirstChild("JungleColor")
+	if not correction then
+		correction = Instance.new("ColorCorrectionEffect")
+		correction.Name = "JungleColor"
+		correction.Parent = Lighting
+	end
+	correction.Saturation = A.Saturation
+	correction.Contrast = A.Contrast
+	correction.TintColor = A.Tint
+
+	-- 잿빛 구름
+	local terrain = Workspace.Terrain
+	local clouds = terrain:FindFirstChildOfClass("Clouds")
+	if not clouds then
+		clouds = Instance.new("Clouds")
+		clouds.Parent = terrain
+	end
+	clouds.Cover = A.CloudCover
+	clouds.Density = A.CloudDensity
+	clouds.Color = A.CloudColor
 end
 
 ----------------------------------------------------------------
@@ -983,12 +1061,13 @@ function MapBuilder.Build()
 	local camp = buildCamp(root)
 	local tents = buildTents(root)
 	local ruins = buildRuins(root)
-	buildSwamps(root)
+	local swamps = buildSwamps(root)
 	buildFallenLogs(root)
 	buildMossStatues(root)
-	local woodSpots = buildTrees(root)
+	local woodSpots, trees = buildTrees(root)
 	local foodSpots = buildFoodSpots(root)
-	buildBushes(root)
+	local bushes = buildBushes(root)
+	buildMist(root, swamps)
 	MapBuilder.SetupLighting()
 
 	local info = {
@@ -1006,6 +1085,9 @@ function MapBuilder.Build()
 		Ruins = ruins,
 		WoodSpots = woodSpots,
 		FoodSpots = foodSpots,
+		Trees = trees,
+		Swamps = swamps,
+		Bushes = bushes,
 	}
 	MapBuilder.Info = info
 

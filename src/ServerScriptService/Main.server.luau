@@ -8,8 +8,10 @@ require(ReplicatedStorage.Remotes) -- 통로를 먼저 만들어 둬요
 
 local Systems = ServerScriptService.Systems
 local MapBuilder = require(Systems.MapBuilder)
+local Wildlife = require(Systems.Wildlife)
 
-MapBuilder.Build()
+local mapInfo = MapBuilder.Build()
+Wildlife.Build(mapInfo)
 
 -- 순서가 중요해요 : 아래 시스템이 위 시스템을 쓸 수 있어요
 local INIT_ORDER = {

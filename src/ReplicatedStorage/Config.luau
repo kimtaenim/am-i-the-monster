@@ -238,19 +238,130 @@ Config.Map = {
 -- 분위기 (안개 · 빛)
 ----------------------------------------------------------------
 Config.Atmosphere = {
-	DayDensity = 0.42,
-	NightDensity = 0.72, -- 밤에는 정체불명의 안개가 짙어져요
-	Offset = 0.25,
-	Haze = 2.2,
+	-- 낮에도 해가 잘 안 드는 음산한 정글이에요
+	DayDensity = 0.5,
+	NightDensity = 0.75, -- 밤에는 정체불명의 안개가 짙어져요
+	Offset = 0.3,
+	Haze = 2.6,
 	Glare = 0,
-	DayColor = Color3.fromRGB(150, 180, 130),
-	DayDecay = Color3.fromRGB(70, 105, 60),
-	NightColor = Color3.fromRGB(70, 85, 95),
-	NightDecay = Color3.fromRGB(25, 35, 40),
-	DayAmbient = Color3.fromRGB(95, 115, 90),
-	NightAmbient = Color3.fromRGB(25, 30, 40),
-	DayBrightness = 2,
-	NightBrightness = 0.4,
+	DayColor = Color3.fromRGB(125, 145, 118),
+	DayDecay = Color3.fromRGB(48, 68, 48),
+	NightColor = Color3.fromRGB(60, 72, 82),
+	NightDecay = Color3.fromRGB(18, 26, 30),
+	DayAmbient = Color3.fromRGB(72, 88, 70),
+	NightAmbient = Color3.fromRGB(22, 26, 36),
+	DayBrightness = 1.4,
+	NightBrightness = 0.3,
+
+	-- 화면 색 보정 : 색을 살짝 빼서 축축하고 어둡게
+	Saturation = -0.25,
+	Contrast = 0.12,
+	Tint = Color3.fromRGB(215, 232, 210),
+
+	-- 잿빛 구름이 하늘을 덮어요
+	CloudCover = 0.85,
+	CloudDensity = 0.6,
+	CloudColor = Color3.fromRGB(150, 155, 150),
+
+	-- 땅에 깔리는 물안개
+	MistSpotCount = 18, -- 늪 말고도 정글 곳곳에 생기는 안개
+	MistRate = 1.2,
+	MistLifetime = 9,
+	MistSize = 14,
+	MistTransparency = 0.85,
+	MistColor = Color3.fromRGB(200, 215, 205),
+}
+
+----------------------------------------------------------------
+-- 정글 동물들 (보기만 하는 장식이에요. 게임 판정에는 안 쓰여요)
+----------------------------------------------------------------
+Config.Wildlife = {
+	-- 몇 마리?
+	Parrots = 14, -- 앵무새 (낮, 나무 위)
+	Toucans = 6, -- 큰부리새 (낮, 나무 위)
+	BirdFlocks = 3, -- 하늘을 도는 새 떼 (낮)
+	BirdsPerFlock = 6,
+	Monkeys = 10, -- 원숭이 (나무줄기 오르내리기)
+	FrogsPerSwamp = 3, -- 개구리 (늪가에서 폴짝)
+	CrocMinSwampSize = 24, -- 이보다 큰 늪엔 악어 눈이 떠 있어요
+	Lizards = 8, -- 도마뱀 (유적 돌 위)
+	Butterflies = 16, -- 나비 (낮)
+	Owls = 8, -- 부엉이 (밤에 눈이 빛나요)
+	Bats = 10, -- 박쥐 (밤)
+	FireflyClusters = 14, -- 반딧불 (밤)
+	EyePairs = 14, -- 덤불 속에서 빛나는 눈 (밤, 다가가면 사라져요)
+
+	BranchLength = 4, -- 새가 앉는 나뭇가지 길이
+
+	-- 움직임
+	UpdateHz = 30, -- 1초에 몇 번 움직일까
+	ActiveDistance = 160, -- 이 거리 안의 동물만 움직여요 (성능)
+	PerchBobSpeed = 2.5,
+	BirdFlyChancePerSecond = 0.04, -- 앉아 있던 새가 날아오를 확률
+	BirdFlySeconds = 6,
+	BirdFlyRadius = 14,
+	FlockRadiusMin = 40,
+	FlockRadiusMax = 90,
+	FlockHeight = 45,
+	FlockSpeed = 0.18, -- 1초에 도는 각도 (라디안)
+	MonkeyClimbSpeed = 0.35,
+	FrogHopChancePerSecond = 0.15,
+	FrogHopSeconds = 0.45,
+	FrogHopDistance = 3,
+	FrogHopHeight = 1.6,
+	LizardDashChancePerSecond = 0.2,
+	LizardDashSeconds = 0.35,
+	LizardDashDistance = 4,
+	LizardRange = 8,
+	ButterflyRange = 10,
+	ButterflySpeed = 0.6,
+	ButterflyFlapSpeed = 18,
+	OwlHeadTurnChancePerSecond = 0.25,
+	BatRadius = 18,
+	BatHeight = 26,
+	BatSpeed = 1.6,
+	EyeBlinkChancePerSecond = 0.3,
+	EyeBlinkSeconds = 0.15,
+	EyeHideDistance = 18, -- 이만큼 다가가면 눈이 사라져요
+	CrocDriftSpeed = 0.08,
+	FireflyRate = 4,
+
+	-- 밤 판정 (Lighting.ClockTime)
+	NightStartsAt = 18.5,
+	NightEndsAt = 5.5,
+}
+
+----------------------------------------------------------------
+-- 소리 (rbxassetid 번호)
+-- 비어 있는 칸("")은 소리가 안 나요.
+-- Studio 도구상자 → 마켓플레이스 → 오디오에서 "jungle", "owl" 등을 검색해서
+-- 마음에 드는 소리를 오른쪽 클릭 → "자산 ID 복사" 한 다음 숫자만 붙여 넣으면 돼요.
+----------------------------------------------------------------
+Config.Sounds = {
+	-- 계속 깔리는 배경 소리
+	DayLoop = "", -- 낮 정글 (새·벌레). 추천 검색어 : jungle ambience, rainforest
+	NightLoop = "9119298682", -- 밤 귀뚜라미 (Roblox 공식 효과음)
+	EerieLoop = "9112775175", -- 밤낮으로 깔리는 으스스한 바람 (Roblox 공식 효과음)
+	DayLoopVolume = 0.45,
+	NightLoopVolume = 0.5,
+	EerieDayVolume = 0.15,
+	EerieNightVolume = 0.4,
+	FadeSeconds = 4,
+
+	-- 가끔 들리는 동물 소리 (동물이 있는 자리에서 들려요)
+	Calls = {
+		Owl = { Id = "", Volume = 0.7, Night = true }, -- 부엉이 : owl hoot
+		Monkey = { Id = "", Volume = 0.6, Night = false }, -- 원숭이 : monkey
+		Parrot = { Id = "", Volume = 0.5, Night = false }, -- 앵무새 : parrot, tropical bird
+		Toucan = { Id = "", Volume = 0.5, Night = false }, -- 큰부리새 : toucan, bird call
+		Frog = { Id = "", Volume = 0.6, Night = nil }, -- 개구리 : frog croak (밤낮 모두)
+		Bat = { Id = "", Volume = 0.4, Night = true }, -- 박쥐 : bat squeak
+	},
+	CallMinSeconds = 3, -- 동물 소리 사이 최소 간격
+	CallMaxSeconds = 9,
+	CallMaxDistance = 140, -- 이 거리 안의 동물만 소리를 내요
+	CallRollOffMin = 10,
+	CallRollOffMax = 150,
 }
 
 ----------------------------------------------------------------
@@ -283,6 +394,38 @@ Config.Colors = {
 	Berry = Color3.fromRGB(150, 40, 90),
 	Banana = Color3.fromRGB(240, 210, 60),
 	Label = Color3.fromRGB(255, 245, 220),
+
+	-- 동물
+	Parrots = {
+		Color3.fromRGB(210, 40, 40),
+		Color3.fromRGB(40, 110, 210),
+		Color3.fromRGB(40, 170, 70),
+		Color3.fromRGB(240, 200, 40),
+	},
+	ParrotWing = Color3.fromRGB(30, 80, 170),
+	Beak = Color3.fromRGB(240, 170, 40),
+	ToucanBody = Color3.fromRGB(25, 25, 28),
+	ToucanChest = Color3.fromRGB(245, 230, 120),
+	ToucanBeak = Color3.fromRGB(250, 130, 30),
+	FlockBird = Color3.fromRGB(35, 35, 40),
+	Monkey = Color3.fromRGB(100, 70, 45),
+	MonkeyFace = Color3.fromRGB(210, 175, 135),
+	Frog = Color3.fromRGB(70, 160, 60),
+	FrogEye = Color3.fromRGB(240, 220, 60),
+	Lizard = Color3.fromRGB(90, 140, 80),
+	Butterflies = {
+		Color3.fromRGB(80, 160, 255),
+		Color3.fromRGB(255, 150, 40),
+		Color3.fromRGB(230, 90, 200),
+		Color3.fromRGB(250, 240, 120),
+	},
+	Owl = Color3.fromRGB(110, 90, 70),
+	OwlFace = Color3.fromRGB(190, 170, 140),
+	OwlEye = Color3.fromRGB(255, 200, 40),
+	Bat = Color3.fromRGB(30, 25, 35),
+	GlowEye = Color3.fromRGB(255, 230, 90),
+	Croc = Color3.fromRGB(55, 75, 45),
+	Firefly = Color3.fromRGB(220, 255, 120),
 }
 
 return Config
