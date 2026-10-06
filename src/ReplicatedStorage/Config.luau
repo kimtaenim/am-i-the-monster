@@ -205,6 +205,10 @@ Config.UI = {
 	NotifyTextSize = 24,
 	NotifyTop = 110, -- 화면 위에서 떨어진 거리 (픽셀)
 	BannerSeconds = 3, -- "밤이 됐어" 큰 글씨가 떠 있는 시간
+	NarrationDelay = 1.5, -- 큰 글씨 뒤 해설이 나오기까지
+	NarrationSeconds = 7, -- 해설이 떠 있는 시간
+	NarrationFadeSeconds = 1.5,
+	NarrationTextSize = 30,
 	HudTextSize = 22,
 }
 

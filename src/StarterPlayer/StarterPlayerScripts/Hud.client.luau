@@ -24,7 +24,7 @@ local PANEL_TRANSPARENCY = 0.35
 local PHASE_BANNERS = {
 	Day = "☀️ %d일째 낮 : 유물·장작·식량을 찾아!",
 	Evening = "🌇 저녁 : 캠프에 모여 밥 먹을 시간",
-	Night = "🌙 밤 : 모닥불 빛 안에 있어!",
+	Night = "🌙 밤이 됐어 : 모닥불 빛 안에 있어!",
 	Morning = "🌅 아침 : 어젯밤 무슨 일이 있었지?",
 }
 
@@ -222,6 +222,46 @@ Remotes.PhaseChanged.OnClientEvent:Connect(function(phase: string, day: number)
 	local format = PHASE_BANNERS[phase]
 	if format then
 		showBanner(string.format(format, day))
+	end
+end)
+
+----------------------------------------------------------------
+-- 가운데 해설 (밤마다 안개 이야기)
+----------------------------------------------------------------
+
+local narration = panel("Narration", Vector2.new(0.5, 0), UDim2.new(0.5, 0, 0.42, 0), UDim2.new(0.8, 0, 0, 110))
+narration.BackgroundColor3 = Color3.new(0, 0, 0)
+narration.Visible = false
+local narrationLabel = text(narration, "Text", UDim2.new(0, 16, 0, 10), UDim2.new(1, -32, 1, -20))
+narrationLabel.TextWrapped = true
+narrationLabel.TextColor3 = Color3.fromRGB(215, 230, 220)
+narrationLabel.Font = Enum.Font.Fantasy
+narrationLabel:FindFirstChildOfClass("UITextSizeConstraint").MaxTextSize = UI.NarrationTextSize
+
+local narrationCount = 0
+Remotes.Narration.OnClientEvent:Connect(function(message: string)
+	narrationCount += 1
+	local myTurn = narrationCount
+	task.wait(UI.NarrationDelay)
+	if myTurn ~= narrationCount then
+		return
+	end
+	narrationLabel.Text = message
+	narration.BackgroundTransparency = 1
+	narrationLabel.TextTransparency = 1
+	narration.Visible = true
+	local fade = TweenInfo.new(UI.NarrationFadeSeconds)
+	TweenService:Create(narration, fade, { BackgroundTransparency = PANEL_TRANSPARENCY }):Play()
+	TweenService:Create(narrationLabel, fade, { TextTransparency = 0 }):Play()
+	task.wait(UI.NarrationSeconds)
+	if myTurn ~= narrationCount then
+		return
+	end
+	TweenService:Create(narration, fade, { BackgroundTransparency = 1 }):Play()
+	TweenService:Create(narrationLabel, fade, { TextTransparency = 1 }):Play()
+	task.wait(UI.NarrationFadeSeconds)
+	if myTurn == narrationCount then
+		narration.Visible = false
 	end
 end)
 

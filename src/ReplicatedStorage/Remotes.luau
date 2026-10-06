@@ -22,6 +22,7 @@ local EVENT_NAMES = {
 	"ExpeditionResult", -- 탐사 결과
 	"Leaderboard", -- 리더보드
 	"UseWeapon", -- 무기 쓰기 (조준한 위치)
+	"Narration", -- 화면 가운데 해설 (안개 이야기)
 }
 
 local Remotes = {}

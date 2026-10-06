@@ -4,7 +4,9 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-require(ReplicatedStorage.Remotes) -- 통로를 먼저 만들어 둬요
+
+local Remotes = require(ReplicatedStorage.Remotes)
+local Lines = require(ReplicatedStorage.Dialogue.Lines)
 
 local Systems = ServerScriptService.Systems
 local MapBuilder = require(Systems.MapBuilder)
@@ -50,6 +52,19 @@ local GameLoop = require(Systems.GameLoop)
 ----------------------------------------------------------------
 
 -- 새 탐사 : 창고·소지품·체력을 처음으로 되돌리고 유물·장작·식량·사냥감을 채워요
+-- 밤마다 안개 해설 하나 (어제와 다른 문장)
+local fogRng = Random.new()
+local lastFog = 0
+local function tellFogStory()
+	local stories = Lines.FogNarration
+	local index = fogRng:NextInteger(1, #stories)
+	if #stories > 1 and index == lastFog then
+		index = index % #stories + 1
+	end
+	lastFog = index
+	Remotes.Narration:FireAllClients(stories[index])
+end
+
 GameLoop.ExpeditionStarted:Connect(function()
 	S.CampStore.Reset()
 	S.Inventory.Reset()
@@ -73,6 +88,8 @@ GameLoop.PhaseStarted:Connect(function(phase: string, day: number)
 	elseif phase == "Night" then
 		if not S.CampStore.BurnForNight() then
 			GameLoop.EndExpedition("Monster", "모닥불이 꺼져서 괴물이 캠프를 덮쳤어...")
+		else
+			tellFogStory()
 		end
 	end
 end)
