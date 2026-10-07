@@ -72,6 +72,8 @@ GameLoop.ExpeditionStarted:Connect(function()
 	S.Sleep.WakeAll()
 	S.Monster.Reset()
 	S.NightLog.Reset()
+	S.Trade.CloseAll()
+	S.Trade.ClearLog()
 	S.Ending.Cleanup()
 	S.Curse.Reset()
 	S.NpcManager.ResetForExpedition()
@@ -133,7 +135,9 @@ GameLoop.PhaseStarted:Connect(function(phase: string, day: number)
 		S.Excavation.GuaranteeEveryone() -- 모두 유물 1개 이상 (저주를 정하기 전에)
 		S.Curse.Designate() -- 첫날 저녁 : 사람들이 캔 유물 중 하나가 저주 유물이 돼요 (서버만 알아요)
 		S.Health.EveningMeal()
+		S.Trade.ScheduleNpcOffers(S.NpcManager.GetAll()) -- NPC들도 저녁마다 한 번씩 교환을 제안해요
 	elseif phase == "Night" then
+		S.Trade.CloseAll() -- 저녁이 끝나면 대답 안 한 제안은 취소
 		if not S.CampStore.BurnForNight() then
 			GameLoop.EndExpedition("Monster", "모닥불이 꺼져서 괴물이 캠프를 덮쳤어...")
 		else

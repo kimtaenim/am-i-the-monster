@@ -172,6 +172,10 @@ Config.Trade = {
 	NpcAcceptChance = 0.7, -- NPC가 제안을 받아줄 확률
 	NpcOffersPerDay = 1, -- NPC가 하루에 하는 제안 수
 	OfferTimeoutSeconds = 15, -- 제안에 답할 시간
+	NpcThinkSeconds = 2, -- NPC가 제안을 받고 고민하는 시간
+	NpcOfferEarliest = 3, -- 저녁이 되고 이만큼 지나야 NPC가 제안해요
+	NpcOfferLatestFraction = 0.6, -- 저녁 시간의 이 비율 안에 NPC가 제안해요
+	ProposeCooldown = 3, -- 플레이어가 제안을 다시 보낼 수 있을 때까지
 }
 
 ----------------------------------------------------------------

@@ -18,6 +18,7 @@ local Health = require(Systems.Health)
 local Monster = require(Systems.Monster)
 local Sleep = require(Systems.Sleep)
 local Visibility = require(Systems.Visibility)
+local Trade = require(Systems.Trade)
 
 local CLUE = Config.Clue
 local TEXT = Lines.MorningReport
@@ -204,6 +205,15 @@ local function buildReport(who: Instance, outside, mapData)
 	for _, event in dayEvents do
 		table.insert(lines, event)
 	end
+	-- 어제 저녁 교환 기록 (모두에게 공개)
+	for _, record in Trade.GetLog() do
+		table.insert(lines, fill(TEXT.Trade, {
+			["이름"] = record.From,
+			["받은사람"] = record.To,
+			["유물1"] = record.Gave,
+			["유물2"] = record.Got,
+		}))
+	end
 	if #mapData.Trail > 0 then
 		table.insert(lines, TEXT.Footprints)
 	end
@@ -264,6 +274,7 @@ function NightLog.SendMorningReports()
 		end
 	end
 	table.clear(dayEvents)
+	Trade.ClearLog()
 end
 
 -- NPC가 쓸 수 있게 : 지난밤 이 사람이 본 것

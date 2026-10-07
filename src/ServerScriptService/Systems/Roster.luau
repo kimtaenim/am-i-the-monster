@@ -11,7 +11,26 @@ local Roster = {}
 Roster.Joined = Signal.new() -- (who) 새 고고학자가 들어왔어요
 Roster.Left = Signal.new() -- (who) 고고학자가 떠나요 (아직 정보가 남아 있을 때 불려요)
 
-local npcs = {} -- 마일스톤 4에서 NPC 모델이 들어가요
+local npcs = {} -- NPC 모델들
+local nextId = 0
+
+-- 고고학자마다 번호를 붙여요 (교환 상대를 고를 때 화면이 이 번호로 알려줘요)
+local function giveId(who: Instance)
+	if who:GetAttribute("ArchId") == nil then
+		nextId += 1
+		who:SetAttribute("ArchId", nextId)
+	end
+end
+
+-- 번호로 고고학자 찾기
+function Roster.FromId(id: number): Instance?
+	for _, who in Roster.GetAll() do
+		if who:GetAttribute("ArchId") == id then
+			return who
+		end
+	end
+	return nil
+end
 
 -- 모든 고고학자 (유령 포함)
 function Roster.GetAll()
@@ -73,6 +92,7 @@ function Roster.FromCharacter(character: Instance): Instance?
 end
 
 function Roster.AddNpc(model: Model)
+	giveId(model)
 	table.insert(npcs, model)
 	Roster.Joined:Fire(model)
 end
@@ -87,9 +107,11 @@ end
 
 function Roster.Init()
 	Players.PlayerAdded:Connect(function(player)
+		giveId(player)
 		Roster.Joined:Fire(player)
 	end)
 	for _, player in Players:GetPlayers() do
+		giveId(player)
 		Roster.Joined:Fire(player)
 	end
 	Players.PlayerRemoving:Connect(function(player)
