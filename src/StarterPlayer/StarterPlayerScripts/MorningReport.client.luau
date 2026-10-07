@@ -206,6 +206,8 @@ end
 -- 보고서 받기
 ----------------------------------------------------------------
 
+local heardCount = 0 -- 아침에 들은 NPC 말 수
+
 Remotes.MorningReport.OnClientEvent:Connect(function(report)
 	title.Text = report.Title
 	for _, child in text:GetChildren() do
@@ -222,6 +224,33 @@ Remotes.MorningReport.OnClientEvent:Connect(function(report)
 		l.ZIndex = 32
 	end
 	drawMap(report.Map)
+	heardCount = 0
 	panel.Visible = true
 	reopen.Visible = true
+end)
+
+-- 아침에 NPC들이 한 말을 보고서 아래에 모아 둬요 (말풍선을 놓쳐도 다시 읽을 수 있게)
+local GameState = require(ReplicatedStorage.GameState)
+local HEARD_ORDER = 1000
+Remotes.NpcSay.OnClientEvent:Connect(function(npc: Instance, said: string)
+	if GameState.Get("Phase") ~= "Morning" or not npc or not npc.Parent then
+		return
+	end
+	local name = npc:GetAttribute("DisplayName") or npc.Name
+	if heardCount == 0 then
+		local header = label(text, "💬 아침에 들은 말", 18)
+		header.LayoutOrder = HEARD_ORDER
+		header.Size = UDim2.new(1, -8, 0, 26)
+		header.TextXAlignment = Enum.TextXAlignment.Left
+		header.TextColor3 = Color3.fromRGB(255, 220, 150)
+		header.ZIndex = 32
+	end
+	heardCount += 1
+	local l = label(text, string.format("%s : \"%s\"", name, said), 16)
+	l.LayoutOrder = HEARD_ORDER + heardCount
+	l.Size = UDim2.new(1, -8, 0, 0)
+	l.AutomaticSize = Enum.AutomaticSize.Y
+	l.TextXAlignment = Enum.TextXAlignment.Left
+	l.TextColor3 = Color3.fromRGB(230, 230, 220)
+	l.ZIndex = 32
 end)

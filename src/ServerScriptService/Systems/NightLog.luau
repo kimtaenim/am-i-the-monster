@@ -29,6 +29,8 @@ local NightLog = {}
 local night = nil -- 오늘 밤 기록
 local dayEvents = {} -- 아침 이후 생긴 일 (유언, 떠남, 굶주림)
 local observations = {} -- 고고학자 → 지난밤에 본 것 (NPC 대사·투표용)
+local lastTrades = {} -- 어제 저녁 교환 기록 (NPC 대사·투표용)
+local lastOutside = {} -- 아침에 캠프 밖에 있던 사람 { Who, Place } (NPC 대사·투표용)
 
 local function fill(template: string, values): string
 	local result = template
@@ -230,10 +232,13 @@ function NightLog.SendMorningReports()
 
 	-- 아침에 캠프(빛) 밖에 있던 사람들 (저주 보유자는 늘 빛 밖에서 깨어나요)
 	local outside, outsideDots = {}, {}
+	table.clear(lastOutside)
 	for _, who in Roster.GetAlive() do
 		local root = Roster.GetRoot(who)
 		if root and not CampStore.IsInLight(root.Position) then
-			table.insert(outside, string.format("%s(%s)", Roster.GetName(who), NightLog.DescribePlace(root.Position)))
+			local place = NightLog.DescribePlace(root.Position)
+			table.insert(lastOutside, { Who = who, Place = place })
+			table.insert(outside, string.format("%s(%s)", Roster.GetName(who), place))
 			local dot = mapPoint(root.Position)
 			dot.Name = Roster.GetName(who)
 			table.insert(outsideDots, dot)
@@ -274,7 +279,18 @@ function NightLog.SendMorningReports()
 		end
 	end
 	table.clear(dayEvents)
+	lastTrades = table.clone(Trade.GetLog())
 	Trade.ClearLog()
+end
+
+-- 어제 저녁 교환 기록 { From, To, Gave, Got } (이름과 유물 글자)
+function NightLog.GetLastTrades()
+	return lastTrades
+end
+
+-- 아침에 캠프 밖에 있던 사람들 { Who, Place }
+function NightLog.GetOutside()
+	return lastOutside
 end
 
 -- NPC가 쓸 수 있게 : 지난밤 이 사람이 본 것
@@ -288,6 +304,8 @@ end
 
 function NightLog.Reset()
 	night = nil
+	lastTrades = {}
+	table.clear(lastOutside)
 	table.clear(dayEvents)
 	table.clear(observations)
 end

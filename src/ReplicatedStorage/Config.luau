@@ -303,7 +303,21 @@ Config.Npc = {
 ----------------------------------------------------------------
 Config.Dialogue = {
 	RecentNoRepeat = 5, -- 최근 몇 문장은 다시 안 씀
-	BubbleSeconds = 4,
+	BubbleSeconds = 4, -- 말풍선이 떠 있는 시간
+	HearDistance = 60, -- 이 거리 안에서 한 말만 들려요
+	MinGapSeconds = 0.8, -- NPC 말 사이 최소 간격 (말이 한꺼번에 쏟아지지 않게)
+	ClueChance = 0.65, -- 아침에 근거 있는 단서를 말할 확률 (나머지는 아무나 의심)
+	CursedExcuseChance = 0.6, -- 엉뚱한 곳에서 깬 저주 NPC가 어리둥절해할 확률
+	OutsideExcuseChance = 0.25, -- 캠프 밖에서 깬 다른 NPC가 비슷한 말을 할 확률 (헷갈리게)
+	MorningTalkLatestFraction = 0.6, -- 아침 시간의 이 비율 안에 모두 한마디씩 해요
+	MorningTalkEarliest = 2,
+	DigChatChance = 0.25, -- 유물·장작·식량을 하나 챙길 때 수다 떨 확률
+	NightMoodSeconds = 9, -- 저녁·밤에 이 간격마다 누군가 한마디
+	NightMoodChance = 0.5,
+	RoundFlowSpeakers = 2, -- 하루가 바뀔 때 말하는 NPC 수
+	RoundFlowLaterChance = 0.5, -- 이틀째부터는 "벌써 ○일째야..."를 말할 확률
+	RoundFlowDelayMax = 2,
+	BubbleHeight = 4.6, -- 머리 위 말풍선 높이
 }
 
 ----------------------------------------------------------------

@@ -17,6 +17,7 @@ local CampStore = require(Systems.CampStore)
 local Excavation = require(Systems.Excavation)
 local Gathering = require(Systems.Gathering)
 local Sleep = require(Systems.Sleep)
+local DialogueService = require(Systems.DialogueService)
 
 local NPC = Config.Npc
 local TAU = math.pi * 2
@@ -204,7 +205,11 @@ function NpcBrain:DoDig(): boolean
 	if not self:WaitFor(Config.Dig.DigSeconds) then
 		return false
 	end
-	return Excavation.Dig(self.Model, ruin.Id) ~= nil
+	local found = Excavation.Dig(self.Model, ruin.Id) ~= nil
+	if found then
+		DialogueService.MaybeDigChat(self.Model)
+	end
+	return found
 end
 
 -- 가까운 곳에서 장작이나 식량 하나 줍기
@@ -233,6 +238,9 @@ function NpcBrain:DoGather(kind: string): boolean
 	end
 	if entry.ReservedBy == self.Model then
 		entry.ReservedBy = nil
+	end
+	if taken then
+		DialogueService.MaybeDigChat(self.Model)
 	end
 	return taken
 end

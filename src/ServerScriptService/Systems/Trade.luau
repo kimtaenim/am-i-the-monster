@@ -12,10 +12,14 @@ local Remotes = require(ReplicatedStorage.Remotes)
 local Systems = ServerScriptService.Systems
 local Roster = require(Systems.Roster)
 local Inventory = require(Systems.Inventory)
+local Signal = require(ReplicatedStorage.Signal)
 
 local TRADE = Config.Trade
 
 local Trade = {}
+
+Trade.Proposed = Signal.new() -- (from, to) 누가 누구에게 제안했어요 (NPC 말풍선용)
+Trade.Answered = Signal.new() -- (to, accepted) 받은 사람이 대답했어요
 
 local rng = Random.new()
 local nextOfferId = 0
@@ -100,9 +104,11 @@ local function npcAnswer(offer)
 		end
 		local mine = Inventory.Get(offer.To)
 		if #mine == 0 or rng:NextNumber() >= TRADE.NpcAcceptChance or not isEvening() then
+			Trade.Answered:Fire(offer.To, false)
 			closeOffer(offer, string.format("🙅 %s이(가) 교환을 거절했어", Roster.GetName(offer.To)))
 			return
 		end
+		Trade.Answered:Fire(offer.To, true)
 		complete(offer, mine[rng:NextInteger(1, #mine)].Uid)
 	end)
 end
@@ -141,6 +147,7 @@ function Trade.Propose(from: Instance, to: Instance, fromUid: number): (boolean,
 	}
 	offers[offer.Id] = offer
 	local _, item = Inventory.FindOwner(fromUid)
+	Trade.Proposed:Fire(from, to)
 
 	if to:IsA("Player") then
 		Remotes.TradeOffer:FireClient(to, "Incoming", {

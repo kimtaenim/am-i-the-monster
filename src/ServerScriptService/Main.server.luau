@@ -86,6 +86,7 @@ GameLoop.ExpeditionStarted:Connect(function()
 	S.Excavation.RefillAll()
 	S.Gathering.RefillDaily()
 	S.Hunting.RefillAll()
+	S.DialogueService.RoundFlow("Start", 1)
 end)
 
 -- 살아 있는 고고학자가 3명 이하가 되면 괴물 승리
@@ -126,6 +127,13 @@ GameLoop.PhaseStarted:Connect(function(phase: string, day: number)
 		warnLater(Config.Time.EveningSeconds - Config.Fire.WarnBeforeNightSeconds, "Evening", day)
 	end
 
+	-- NPC들의 한마디
+	if phase == "Day" and day > 1 then
+		S.DialogueService.RoundFlow("Day", day)
+	elseif phase == "Evening" then
+		S.DialogueService.RoundFlow("Evening", day)
+	end
+
 	if phase == "Day" and day > 1 then
 		-- 새 하루 : 유물이 다시 묻히고, 장작·식량·사냥감이 다시 나와요
 		S.Excavation.RefillAll()
@@ -148,6 +156,7 @@ GameLoop.PhaseStarted:Connect(function(phase: string, day: number)
 	elseif phase == "Morning" then
 		S.Sleep.WakeAll()
 		S.NightLog.SendMorningReports() -- "어젯밤 본 것" (사람마다 자기가 본 것만)
+		S.DialogueService.MorningTalk() -- NPC들이 단서를 말하거나 아무나 의심해요
 	end
 end)
 

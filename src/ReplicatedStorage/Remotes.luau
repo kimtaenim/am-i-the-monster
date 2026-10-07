@@ -26,6 +26,7 @@ local EVENT_NAMES = {
 	"Ending", -- 공포 엔딩 연출 (단계, 정보)
 	"ScreenFlash", -- 화면 번쩍임과 한 줄 (괴물에게 잡혔을 때)
 	"AnimalStartle", -- 이 근처 동물들이 놀라요 (위치)
+	"NpcSay", -- NPC 말풍선 (NPC, 문장)
 }
 
 local Remotes = {}
