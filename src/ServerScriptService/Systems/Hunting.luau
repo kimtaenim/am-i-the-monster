@@ -2,15 +2,15 @@
 -- 무기에 맞으면 놀라서 도망치고, 체력이 0이 되면 반짝이며 기절해서 사라지고 고기를 떨어뜨려요.
 -- 피나 잔인한 모습은 없어요. 고기를 주우면 손에 들고 캠프로 가져가야 해요.
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local TweenService = game:GetService("TweenService")
-local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Config)
 local MapBuilder = require(ServerScriptService.Systems.MapBuilder)
 local Gathering = require(ServerScriptService.Systems.Gathering)
+local Roster = require(ServerScriptService.Systems.Roster)
+local Omens = require(ServerScriptService.Systems.Omens)
 
 local H = Config.Hunt
 local COLORS = Config.Colors
@@ -194,22 +194,14 @@ local function randomSpawnPoint(): Vector3
 end
 
 -- 사냥감을 놀라게 하는 것들 : 플레이어와 NPC 고고학자
+-- 사냥감을 놀라게 하는 것들 : 살아 있는 고고학자 (플레이어와 NPC)
+-- Scale이 크면 더 멀리서부터 도망쳐요 (동물들의 반응 단서)
 local function threatPositions()
 	local list = {}
-	for _, player in Players:GetPlayers() do
-		local character = player.Character
-		local root = character and character:FindFirstChild("HumanoidRootPart")
+	for _, who in Roster.GetAlive() do
+		local root = Roster.GetRoot(who)
 		if root then
-			table.insert(list, root.Position)
-		end
-	end
-	local npcFolder = Workspace:FindFirstChild("Archaeologists")
-	if npcFolder then
-		for _, npc in npcFolder:GetChildren() do
-			local root = npc:FindFirstChild("HumanoidRootPart")
-			if root and not Players:GetPlayerFromCharacter(npc) then
-				table.insert(list, root.Position)
-			end
+			table.insert(list, { Pos = root.Position, Scale = Omens.GetFearScale(who) })
 		end
 	end
 	return list
@@ -463,11 +455,12 @@ local function think(prey, threats, now)
 	local pos = prey.Root.Position
 
 	-- 가까운 사람이 있나?
-	local nearest, nearestDist = nil, prey.Def.Skittish
+	local nearest, nearestRatio = nil, 1
 	for _, threat in threats do
-		local dist = (threat - pos).Magnitude
-		if dist < nearestDist then
-			nearest, nearestDist = threat, dist
+		-- 무서운 사람(Scale)일수록 더 멀리서부터 도망쳐요
+		local ratio = (threat.Pos - pos).Magnitude / (prey.Def.Skittish * threat.Scale)
+		if ratio < nearestRatio then
+			nearest, nearestRatio = threat.Pos, ratio
 		end
 	end
 	if nearest then

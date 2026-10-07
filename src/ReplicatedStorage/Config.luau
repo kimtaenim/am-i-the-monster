@@ -183,13 +183,35 @@ Config.Night = {
 	SleepEarliest = 5, -- 밤 시작 후 몇 초부터 졸 수 있나
 	FogSightRadius = 40, -- 밤 안개 속에서 보이는 거리 (목격 판정)
 	TentCapacity = 1,
+	SleepEndMargin = 3, -- 밤이 끝나기 이만큼 전에는 깨어나요
+	WitnessSampleSeconds = 1, -- 괴물이 있는 동안 누가 누구를 봤는지 확인하는 간격
+}
+
+----------------------------------------------------------------
+-- 단서
+----------------------------------------------------------------
+Config.Clue = {
+	-- 동물들의 반응 : 저주 보유자 근처 동물이 놀라요 (가끔 다른 사람 근처에서도)
+	OmenSeconds = 8, -- 이 간격마다 동물이 놀랄지 정해요
+	OmenChance = 0.6, -- 저주 보유자 근처에서 놀랄 확률
+	OmenNoiseChance = 0.25, -- 다른 사람 근처에서 놀랄 확률 (헷갈리게)
+	StartleRadius = 25, -- 이 거리 안의 동물이 놀라요
+	PreyFearMultiplier = 2, -- 놀란 사냥감은 이만큼 더 멀리서 도망쳐요
+
+	-- 아침 보고서
+	TrailSampleSeconds = 1, -- 괴물 발자국을 남기는 간격
+	LandmarkRuinDistance = 60, -- 이 거리 안이면 "○○ 유적 근처"
+	LandmarkSwampDistance = 40, -- 이 거리 안이면 "늪 근처"
+	MapPixels = 240, -- 아침 보고서 지도 크기
 }
 
 Config.Monster = {
 	WalkSpeed = 17,
+	WanderSpeedFactor = 0.6, -- 쫓을 사람이 없을 때는 천천히 어슬렁
 	CatchDistance = 4,
 	RepathSeconds = 0.5, -- 쫓는 대상 위치 다시 확인하는 간격
 	WanderRadius = 30,
+	LightPushMargin = 1, -- 빛 가장자리에서 이만큼 바깥에 멈춰요
 }
 
 ----------------------------------------------------------------
@@ -262,7 +284,7 @@ Config.Npc = {
 		Color3.fromRGB(95, 80, 60),
 	},
 	NameTagHeight = 3.6,
-	NameTagDistance = 70,
+	NameTagDistance = 40, -- 안개 속 보이는 거리와 같아요 (멀리서 이름표로 정체를 알아내지 못하게)
 
 	-- 걷기 애니메이션 (Roblox 기본 R15 애니메이션)
 	Animations = {

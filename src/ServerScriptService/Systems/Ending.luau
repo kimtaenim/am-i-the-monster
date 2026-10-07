@@ -20,6 +20,7 @@ local Curse = require(Systems.Curse)
 local Health = require(Systems.Health)
 local Monster = require(Systems.Monster)
 local GameLoop = require(Systems.GameLoop)
+local Sleep = require(Systems.Sleep)
 
 local E = Config.Ending
 local TEXT = Lines.HorrorEnding
@@ -82,6 +83,7 @@ end
 
 -- 공포 엔딩 연출 (GameLoop가 결과 화면 전에 불러요)
 function Ending.PlayHorror()
+	Sleep.WakeAll() -- 졸던 사람은 깨우고, 돌아다니던 괴물은 사라져요
 	-- 괴물의 정체 : 저주 보유자 (아직 없으면 지금 정해요)
 	Curse.Designate()
 	local item, holder = Curse.GetCursedItem()

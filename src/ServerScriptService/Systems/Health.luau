@@ -42,7 +42,7 @@ local function updateOverhead(who: Instance)
 		gui.Name = "HealthGui"
 		gui.Size = UDim2.fromScale(3, 0.8)
 		gui.StudsOffsetWorldSpace = Vector3.new(0, 2.6, 0)
-		gui.MaxDistance = 60
+		gui.MaxDistance = Config.Night.FogSightRadius
 		gui.LightInfluence = 0
 		local label = Instance.new("TextLabel")
 		label.Name = "Hearts"
@@ -159,6 +159,15 @@ function Health.Reset()
 	end
 end
 
+-- 이름은 안개 속 보이는 거리 안에서만 보여요 (멀리서 이름으로 정체를 알아내지 못하게)
+local function limitNameDistance(character: Model)
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid.NameDisplayDistance = Config.Night.FogSightRadius
+		humanoid.HealthDisplayDistance = Config.Night.FogSightRadius
+	end
+end
+
 function Health.Init()
 	local function setup(who: Instance)
 		if who:GetAttribute("Health") == nil then
@@ -167,12 +176,14 @@ function Health.Init()
 		if who:IsA("Player") then
 			who.CharacterAdded:Connect(function(character)
 				character:WaitForChild("Head")
+				limitNameDistance(character)
 				updateOverhead(who)
 				if Roster.IsGhost(who) then
 					applyGhostLook(who)
 				end
 			end)
 			if who.Character then
+				limitNameDistance(who.Character)
 				updateOverhead(who)
 			end
 		else

@@ -9,6 +9,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Config)
+local Remotes = require(ReplicatedStorage.Remotes)
 local W = Config.Wildlife
 local TAU = math.pi * 2
 
@@ -354,6 +355,42 @@ for _, child in folder:GetChildren() do
 end
 folder.ChildAdded:Connect(function(child)
 	task.defer(register, child)
+end)
+
+-- 단서 "동물들의 반응" : 이 위치 근처 동물들이 깜짝 놀라요
+-- (새는 푸드득 날아가고, 개구리는 반대쪽으로 뛰고, 도마뱀은 후다닥, 부엉이는 그쪽을 홱 봐요)
+Remotes.AnimalStartle.OnClientEvent:Connect(function(position: Vector3)
+	local radius = Config.Clue.StartleRadius
+	for _, entry in entries do
+		local here = entry.State.Pos or entry.Home.Position
+		local offset = here - position
+		if offset.Magnitude <= radius then
+			local s = entry.State
+			local away = Vector3.new(offset.X, 0, offset.Z)
+			away = away.Magnitude > 0.1 and away.Unit or Vector3.xAxis
+			if entry.Kind == "Parrot" or entry.Kind == "Toucan" then
+				if not s.Flying then
+					s.Flying = true
+					s.Timer = 0
+				end
+			elseif entry.Kind == "Frog" and not s.Hopping then
+				s.Hopping = true
+				s.Timer = 0
+				s.From = s.Pos
+				s.To = s.Pos + away * W.FrogHopDistance * 1.5
+				s.Facing = CFrame.lookAt(Vector3.zero, away).Rotation
+			elseif entry.Kind == "Lizard" and not s.Dashing then
+				s.Dashing = true
+				s.Timer = 0
+				s.From = s.Pos
+				s.To = s.Pos + away * W.LizardDashDistance
+				s.Facing = CFrame.lookAt(Vector3.zero, away).Rotation
+			elseif entry.Kind == "Owl" then
+				local localDir = entry.Home:VectorToObjectSpace(-away)
+				s.HeadTarget = math.atan2(-localDir.X, -localDir.Z)
+			end
+		end
+	end
 end)
 
 local interval = 1 / W.UpdateHz

@@ -30,10 +30,11 @@ local INIT_ORDER = {
 	"Weapons",
 	"Excavation",
 	"DialogueService",
-	"NightLog",
-	"NpcManager",
-	"Sleep",
 	"Monster",
+	"Sleep",
+	"NightLog",
+	"Omens",
+	"NpcManager",
 	"Trade",
 	"Vote",
 	"Ghost",
@@ -68,6 +69,9 @@ local function tellFogStory()
 end
 
 GameLoop.ExpeditionStarted:Connect(function()
+	S.Sleep.WakeAll()
+	S.Monster.Reset()
+	S.NightLog.Reset()
 	S.Ending.Cleanup()
 	S.Curse.Reset()
 	S.NpcManager.ResetForExpedition()
@@ -134,7 +138,12 @@ GameLoop.PhaseStarted:Connect(function(phase: string, day: number)
 			GameLoop.EndExpedition("Monster", "모닥불이 꺼져서 괴물이 캠프를 덮쳤어...")
 		else
 			tellFogStory()
+			S.NightLog.StartNight(day)
+			S.Sleep.ScheduleNight() -- 모두 무작위 시간에 졸아요. 저주 보유자가 졸면 괴물이 나와요
 		end
+	elseif phase == "Morning" then
+		S.Sleep.WakeAll()
+		S.NightLog.SendMorningReports() -- "어젯밤 본 것" (사람마다 자기가 본 것만)
 	end
 end)
 

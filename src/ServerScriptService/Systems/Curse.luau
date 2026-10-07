@@ -2,8 +2,11 @@
 -- 첫날 저녁, 사람들이 캔 유물 중 하나를 저주 유물로 정해요. 저주는 유물을 따라다녀요.
 -- 저주 유물은 번호(Uid)로만 기억해서 교환·유언으로 주인이 바뀌어도 그대로 따라가요.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local ServerStorage = game:GetService("ServerStorage")
 
 local Systems = ServerScriptService.Systems
 local Roster = require(Systems.Roster)
@@ -66,6 +69,32 @@ function Curse.Reset()
 end
 
 function Curse.Init()
+	-- Studio 테스트용 (진짜 서버에서는 만들지 않아요)
+	--   print(game.ServerStorage.WhoIsCursed:Invoke())   → 지금 저주 보유자 이름
+	--   game.ServerStorage.MakeMeCursed:Fire()           → 첫 번째 플레이어가 저주 보유자가 돼요
+	if RunService:IsStudio() then
+		local who = Instance.new("BindableFunction")
+		who.Name = "WhoIsCursed"
+		who.OnInvoke = function()
+			local holder = Curse.GetHolder()
+			return holder and Roster.GetName(holder) or "아직 정해지지 않았어요 (첫날 저녁에 정해져요)"
+		end
+		who.Parent = ServerStorage
+
+		local makeMe = Instance.new("BindableEvent")
+		makeMe.Name = "MakeMeCursed"
+		makeMe.Event:Connect(function()
+			local player = Players:GetPlayers()[1]
+			if not player then
+				return
+			end
+			local items = Inventory.Get(player)
+			local item = items[1] or Inventory.Add(player, "Mask", { Day = 0 })
+			cursedUid = item.Uid
+			print("[Curse] 테스트 : 이제", player.DisplayName, "이(가) 저주 보유자예요")
+		end)
+		makeMe.Parent = ServerStorage
+	end
 end
 
 return Curse

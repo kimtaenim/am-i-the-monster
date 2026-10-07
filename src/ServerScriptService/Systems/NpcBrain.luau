@@ -16,6 +16,7 @@ local Roster = require(Systems.Roster)
 local CampStore = require(Systems.CampStore)
 local Excavation = require(Systems.Excavation)
 local Gathering = require(Systems.Gathering)
+local Sleep = require(Systems.Sleep)
 
 local NPC = Config.Npc
 local TAU = math.pi * 2
@@ -67,6 +68,7 @@ function NpcBrain:Interrupted(): boolean
 		or not self.Model.Parent
 		or GameState.Get("Phase") ~= self.Phase
 		or Roster.IsGhost(self.Model) ~= self.WasGhost
+		or Sleep.IsSleeping(self.Model) ~= self.WasSleeping
 end
 
 -- 플레이어와 멀면 느긋하게 확인해요 (성능)
@@ -282,6 +284,11 @@ function NpcBrain:ReleaseTent()
 end
 
 function NpcBrain:DoNight()
+	-- 엉뚱한 곳에서 깨어났으면 어리둥절해서 아침까지 그 자리에 있어요
+	if Sleep.IsConfused(self.Model) then
+		self:WaitUntilInterrupted()
+		return
+	end
 	-- 빈 텐트가 있으면 가끔 텐트로 숨어요
 	if rng:NextNumber() < NPC.TentChance then
 		for _, tent in MapBuilder.Info.Tents do
@@ -320,8 +327,11 @@ function NpcBrain:Start()
 		while self.Running and self.Model.Parent do
 			self.Phase = GameState.Get("Phase")
 			self.WasGhost = Roster.IsGhost(self.Model)
+			self.WasSleeping = Sleep.IsSleeping(self.Model)
 			local ok, err = pcall(function()
-				if self.WasGhost then
+				if self.WasSleeping then
+					self:WaitUntilInterrupted() -- 조는 동안은 가만히 (머리 위 그림은 그대로 둬서 졸음을 들키지 않아요)
+				elseif self.WasGhost then
 					self:DoGhost()
 				elseif self.Phase == "Day" then
 					self:DoDay()

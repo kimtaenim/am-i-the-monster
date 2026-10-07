@@ -24,6 +24,8 @@ local EVENT_NAMES = {
 	"UseWeapon", -- 무기 쓰기 (조준한 위치)
 	"Narration", -- 화면 가운데 해설 (안개 이야기)
 	"Ending", -- 공포 엔딩 연출 (단계, 정보)
+	"ScreenFlash", -- 화면 번쩍임과 한 줄 (괴물에게 잡혔을 때)
+	"AnimalStartle", -- 이 근처 동물들이 놀라요 (위치)
 }
 
 local Remotes = {}
