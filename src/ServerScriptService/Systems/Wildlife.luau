@@ -43,7 +43,8 @@ local function newAnimal(folder: Instance, kind: string, cf: CFrame): (Model, CF
 end
 
 -- 동물 몸 조각 하나. role은 화면에서 따로 움직일 부분(날개, 머리, 눈)이에요
-local function piece(model: Model, cf: CFrame, offset: CFrame, size: Vector3, color: Color3, shape: Enum.PartType?, material: Enum.Material?, role: string?, side: number?)
+-- shape가 "Egg"면 크기에 맞춰 늘어난 둥근 공 모양이 돼요
+local function piece(model: Model, cf: CFrame, offset: CFrame, size: Vector3, color: Color3, shape: any?, material: Enum.Material?, role: string?, side: number?)
 	local part = Instance.new("Part")
 	part.Anchored = true
 	part.CanCollide = false
@@ -52,7 +53,13 @@ local function piece(model: Model, cf: CFrame, offset: CFrame, size: Vector3, co
 	part.CastShadow = false
 	part.TopSurface = Enum.SurfaceType.Smooth
 	part.BottomSurface = Enum.SurfaceType.Smooth
-	part.Shape = shape or Enum.PartType.Block
+	if shape == "Egg" then
+		local mesh = Instance.new("SpecialMesh")
+		mesh.MeshType = Enum.MeshType.Sphere
+		mesh.Parent = part
+	elseif shape then
+		part.Shape = shape
+	end
 	part.Size = size
 	part.Color = color
 	part.Material = material or Enum.Material.SmoothPlastic
@@ -68,7 +75,6 @@ local function piece(model: Model, cf: CFrame, offset: CFrame, size: Vector3, co
 end
 
 local BALL = Enum.PartType.Ball
-local CYL = Enum.PartType.Cylinder
 local NEON = Enum.Material.Neon
 
 local function pick(list)
@@ -79,81 +85,128 @@ end
 -- 동물 모양 (모두 -Z 쪽을 바라봐요)
 ----------------------------------------------------------------
 
+local EGG = "Egg" -- 크기에 맞춰 늘어난 둥근 모양 (타원)
+
+-- 반짝이는 동그란 눈 한 쌍. facing : -1이면 -Z쪽, 1이면 +Z쪽을 봐요
+local function eyes(model, cf, x: number, y: number, z: number, size: number, facing: number, role: string?)
+	for _, side in { -1, 1 } do
+		piece(model, cf, CFrame.new(side * x, y, z), Vector3.one * size, COLORS.EyeBlack, BALL, nil, role)
+		piece(model, cf, CFrame.new(side * x + side * size * 0.12, y + size * 0.2, z + facing * size * 0.38), Vector3.one * size * 0.35, COLORS.EyeShine, BALL, nil, role)
+	end
+end
+
 local function buildParrot(model, cf)
 	local color = pick(COLORS.Parrots)
-	piece(model, cf, CFrame.new(0, 0, 0), Vector3.one * 1.2, color, BALL)
-	piece(model, cf, CFrame.new(0, 0.75, -0.35), Vector3.one * 0.8, color, BALL)
-	piece(model, cf, CFrame.new(0, 0.65, -0.85), Vector3.new(0.25, 0.3, 0.35), COLORS.Beak)
-	piece(model, cf, CFrame.new(0, -0.35, 0.8) * CFrame.Angles(0.5, 0, 0), Vector3.new(0.35, 0.12, 1.3), color)
-	piece(model, cf, CFrame.new(-0.6, 0.1, 0.1), Vector3.new(0.12, 0.7, 1), COLORS.ParrotWing, nil, nil, "Wing", -1)
-	piece(model, cf, CFrame.new(0.6, 0.1, 0.1), Vector3.new(0.12, 0.7, 1), COLORS.ParrotWing, nil, nil, "Wing", 1)
+	-- 통통한 몸과 동그란 머리
+	piece(model, cf, CFrame.new(0, 0, 0) * CFrame.Angles(-0.35, 0, 0), Vector3.new(1.1, 1.5, 1.1), color, EGG)
+	piece(model, cf, CFrame.new(0, 0.85, -0.25), Vector3.one * 0.85, color, BALL)
+	-- 갈고리 부리
+	piece(model, cf, CFrame.new(0, 0.75, -0.72) * CFrame.Angles(0.5, 0, 0), Vector3.new(0.28, 0.4, 0.3), COLORS.Beak, EGG)
+	eyes(model, cf, 0.28, 0.95, -0.55, 0.16, -1)
+	-- 길게 뻗은 꼬리 깃털
+	piece(model, cf, CFrame.new(0, -0.6, 0.7) * CFrame.Angles(0.6, 0, 0), Vector3.new(0.35, 0.12, 1.5), COLORS.ParrotWing, EGG)
+	piece(model, cf, CFrame.new(-0.55, 0.05, 0.1), Vector3.new(0.18, 0.9, 1.1), COLORS.ParrotWing, EGG, nil, "Wing", -1)
+	piece(model, cf, CFrame.new(0.55, 0.05, 0.1), Vector3.new(0.18, 0.9, 1.1), COLORS.ParrotWing, EGG, nil, "Wing", 1)
 end
 
 local function buildToucan(model, cf)
-	piece(model, cf, CFrame.new(0, 0, 0), Vector3.one * 1.3, COLORS.ToucanBody, BALL)
-	piece(model, cf, CFrame.new(0, 0.1, -0.45), Vector3.new(0.8, 0.8, 0.4), COLORS.ToucanChest)
-	piece(model, cf, CFrame.new(0, 0.8, -0.3), Vector3.one * 0.8, COLORS.ToucanBody, BALL)
-	piece(model, cf, CFrame.new(0, 0.75, -1.1), Vector3.new(0.35, 0.4, 1.2), COLORS.ToucanBeak)
-	piece(model, cf, CFrame.new(-0.65, 0.1, 0.1), Vector3.new(0.12, 0.75, 1), COLORS.ToucanBody, nil, nil, "Wing", -1)
-	piece(model, cf, CFrame.new(0.65, 0.1, 0.1), Vector3.new(0.12, 0.75, 1), COLORS.ToucanBody, nil, nil, "Wing", 1)
+	piece(model, cf, CFrame.new(0, 0, 0) * CFrame.Angles(-0.3, 0, 0), Vector3.new(1.2, 1.6, 1.2), COLORS.ToucanBody, EGG)
+	piece(model, cf, CFrame.new(0, 0.3, -0.42), Vector3.new(0.8, 0.8, 0.4), COLORS.ToucanChest, EGG)
+	piece(model, cf, CFrame.new(0, 0.95, -0.25), Vector3.one * 0.85, COLORS.ToucanBody, BALL)
+	-- 크고 알록달록한 부리
+	piece(model, cf, CFrame.new(0, 0.88, -1.05) * CFrame.Angles(0.15, 0, 0), Vector3.new(0.38, 0.45, 1.3), COLORS.ToucanBeak, EGG)
+	piece(model, cf, CFrame.new(0, 0.82, -1.62), Vector3.new(0.2, 0.25, 0.25), COLORS.EyeBlack, EGG)
+	eyes(model, cf, 0.3, 1.05, -0.55, 0.16, -1)
+	piece(model, cf, CFrame.new(-0.6, 0.05, 0.1), Vector3.new(0.18, 0.9, 1.1), COLORS.ToucanBody, EGG, nil, "Wing", -1)
+	piece(model, cf, CFrame.new(0.6, 0.05, 0.1), Vector3.new(0.18, 0.9, 1.1), COLORS.ToucanBody, EGG, nil, "Wing", 1)
 end
 
 local function buildFlockBird(model, cf)
-	piece(model, cf, CFrame.new(0, 0, 0), Vector3.new(0.5, 0.35, 1.1), COLORS.FlockBird)
-	piece(model, cf, CFrame.new(-0.85, 0, 0), Vector3.new(1.3, 0.08, 0.6), COLORS.FlockBird, nil, nil, "Wing", -1)
-	piece(model, cf, CFrame.new(0.85, 0, 0), Vector3.new(1.3, 0.08, 0.6), COLORS.FlockBird, nil, nil, "Wing", 1)
+	piece(model, cf, CFrame.new(0, 0, 0), Vector3.new(0.5, 0.4, 1.2), COLORS.FlockBird, EGG)
+	piece(model, cf, CFrame.new(-0.85, 0, 0), Vector3.new(1.4, 0.1, 0.6), COLORS.FlockBird, EGG, nil, "Wing", -1)
+	piece(model, cf, CFrame.new(0.85, 0, 0), Vector3.new(1.4, 0.1, 0.6), COLORS.FlockBird, EGG, nil, "Wing", 1)
 end
 
 local function buildMonkey(model, cf)
-	piece(model, cf, CFrame.new(0, 0, 0), Vector3.one * 1.8, COLORS.Monkey, BALL)
-	piece(model, cf, CFrame.new(0, 1.4, 0.1), Vector3.one * 1.3, COLORS.Monkey, BALL)
-	piece(model, cf, CFrame.new(0, 1.35, 0.55), Vector3.one * 0.8, COLORS.MonkeyFace, BALL)
-	-- 나무를 껴안은 팔
-	piece(model, cf, CFrame.new(-0.8, 0.6, -0.6) * CFrame.Angles(0.6, 0, 0), Vector3.new(0.4, 0.4, 1.3), COLORS.Monkey)
-	piece(model, cf, CFrame.new(0.8, 0.6, -0.6) * CFrame.Angles(0.6, 0, 0), Vector3.new(0.4, 0.4, 1.3), COLORS.Monkey)
-	-- 길게 늘어진 꼬리
-	piece(model, cf, CFrame.new(0, -1.4, 0.7) * CFrame.Angles(0.3, 0, 0), Vector3.new(0.25, 2.2, 0.25), COLORS.Monkey)
+	-- 나무줄기(-Z)를 껴안고, 얼굴은 바깥(+Z)을 봐요
+	piece(model, cf, CFrame.new(0, 0, 0), Vector3.new(1.6, 2, 1.5), COLORS.Monkey, EGG)
+	piece(model, cf, CFrame.new(0, 0, 0.35), Vector3.new(1.0, 1.3, 0.9), COLORS.MonkeyFace, EGG)
+	piece(model, cf, CFrame.new(0, 1.45, 0.1), Vector3.one * 1.3, COLORS.Monkey, BALL)
+	piece(model, cf, CFrame.new(0, 1.35, 0.55), Vector3.new(0.95, 0.8, 0.5), COLORS.MonkeyFace, EGG)
+	eyes(model, cf, 0.22, 1.55, 0.72, 0.18, 1)
+	-- 동그란 귀
+	piece(model, cf, CFrame.new(-0.7, 1.55, 0.1), Vector3.new(0.2, 0.45, 0.45), COLORS.MonkeyFace, EGG)
+	piece(model, cf, CFrame.new(0.7, 1.55, 0.1), Vector3.new(0.2, 0.45, 0.45), COLORS.MonkeyFace, EGG)
+	-- 나무를 껴안은 긴 팔과 다리
+	for _, side in { -1, 1 } do
+		piece(model, cf, CFrame.new(side * 0.75, 0.7, -0.55) * CFrame.Angles(0.9, 0, 0), Vector3.new(0.38, 1.4, 0.38), COLORS.Monkey, EGG)
+		piece(model, cf, CFrame.new(side * 0.6, -0.8, -0.45) * CFrame.Angles(0.7, 0, 0), Vector3.new(0.42, 1.2, 0.42), COLORS.Monkey, EGG)
+	end
+	-- 동그랗게 말린 꼬리
+	piece(model, cf, CFrame.new(0, -1.3, 0.6) * CFrame.Angles(0.4, 0, 0), Vector3.new(0.22, 1.6, 0.22), COLORS.Monkey, EGG)
+	piece(model, cf, CFrame.new(0, -2.05, 0.95), Vector3.new(0.22, 0.6, 0.6), COLORS.Monkey, EGG)
 end
 
 local function buildFrog(model, cf)
-	piece(model, cf, CFrame.new(0, 0.45, 0), Vector3.one * 1.1, COLORS.Frog, BALL)
-	piece(model, cf, CFrame.new(-0.3, 0.95, -0.3), Vector3.one * 0.35, COLORS.FrogEye, BALL)
-	piece(model, cf, CFrame.new(0.3, 0.95, -0.3), Vector3.one * 0.35, COLORS.FrogEye, BALL)
-	piece(model, cf, CFrame.new(-0.55, 0.2, 0.35), Vector3.new(0.3, 0.3, 0.8), COLORS.Frog)
-	piece(model, cf, CFrame.new(0.55, 0.2, 0.35), Vector3.new(0.3, 0.3, 0.8), COLORS.Frog)
+	-- 납작하고 동그란 몸과 툭 튀어나온 눈
+	piece(model, cf, CFrame.new(0, 0.4, 0), Vector3.new(1.3, 0.8, 1.4), COLORS.Frog, EGG)
+	piece(model, cf, CFrame.new(0, 0.3, -0.35), Vector3.new(0.9, 0.45, 0.6), COLORS.FrogBelly, EGG)
+	for _, side in { -1, 1 } do
+		piece(model, cf, CFrame.new(side * 0.32, 0.85, -0.35), Vector3.one * 0.38, COLORS.Frog, BALL)
+	end
+	eyes(model, cf, 0.32, 0.9, -0.48, 0.22, -1)
+	-- 접은 뒷다리와 앞다리
+	piece(model, cf, CFrame.new(-0.6, 0.2, 0.35), Vector3.new(0.4, 0.35, 0.9), COLORS.Frog, EGG)
+	piece(model, cf, CFrame.new(0.6, 0.2, 0.35), Vector3.new(0.4, 0.35, 0.9), COLORS.Frog, EGG)
+	piece(model, cf, CFrame.new(-0.4, 0.12, -0.55), Vector3.new(0.2, 0.2, 0.45), COLORS.Frog, EGG)
+	piece(model, cf, CFrame.new(0.4, 0.12, -0.55), Vector3.new(0.2, 0.2, 0.45), COLORS.Frog, EGG)
 end
 
 local function buildLizard(model, cf)
-	piece(model, cf, CFrame.new(0, 0.18, 0), Vector3.new(0.5, 0.3, 1.5), COLORS.Lizard)
-	piece(model, cf, CFrame.new(0, 0.2, -0.95), Vector3.new(0.45, 0.25, 0.5), COLORS.Lizard)
-	piece(model, cf, CFrame.new(0, 0.12, 1.5), Vector3.new(0.18, 0.12, 1.6), COLORS.Lizard)
+	piece(model, cf, CFrame.new(0, 0.2, 0), Vector3.new(0.55, 0.35, 1.5), COLORS.Lizard, EGG)
+	piece(model, cf, CFrame.new(0, 0.24, -0.95), Vector3.new(0.45, 0.3, 0.6), COLORS.Lizard, EGG)
+	eyes(model, cf, 0.17, 0.33, -1.05, 0.1, -1)
+	-- 점점 가늘어지는 꼬리
+	piece(model, cf, CFrame.new(0, 0.15, 1.15), Vector3.new(0.3, 0.2, 1.0), COLORS.Lizard, EGG)
+	piece(model, cf, CFrame.new(0.1, 0.1, 1.9) * CFrame.Angles(0, 0.3, 0), Vector3.new(0.16, 0.12, 0.9), COLORS.Lizard, EGG)
 	for _, x in { -0.35, 0.35 } do
-		piece(model, cf, CFrame.new(x, 0.08, -0.4), Vector3.new(0.35, 0.12, 0.15), COLORS.Lizard)
-		piece(model, cf, CFrame.new(x, 0.08, 0.45), Vector3.new(0.35, 0.12, 0.15), COLORS.Lizard)
+		piece(model, cf, CFrame.new(x, 0.08, -0.4), Vector3.new(0.35, 0.12, 0.16), COLORS.Lizard, EGG)
+		piece(model, cf, CFrame.new(x, 0.08, 0.45), Vector3.new(0.35, 0.12, 0.16), COLORS.Lizard, EGG)
 	end
 end
 
 local function buildButterfly(model, cf)
 	local color = pick(COLORS.Butterflies)
-	piece(model, cf, CFrame.new(0, 0, 0) * CFrame.Angles(0, math.pi / 2, 0), Vector3.new(0.6, 0.12, 0.12), COLORS.Bat, CYL)
-	piece(model, cf, CFrame.new(-0.4, 0, 0), Vector3.new(0.7, 0.04, 0.6), color, nil, nil, "Wing", -1)
-	piece(model, cf, CFrame.new(0.4, 0, 0), Vector3.new(0.7, 0.04, 0.6), color, nil, nil, "Wing", 1)
+	piece(model, cf, CFrame.new(0, 0, 0), Vector3.new(0.12, 0.12, 0.6), COLORS.Bat, EGG)
+	-- 앞날개(크게)와 뒷날개(작게)
+	piece(model, cf, CFrame.new(-0.4, 0, -0.12), Vector3.new(0.75, 0.04, 0.6), color, EGG, nil, "Wing", -1)
+	piece(model, cf, CFrame.new(0.4, 0, -0.12), Vector3.new(0.75, 0.04, 0.6), color, EGG, nil, "Wing", 1)
+	piece(model, cf, CFrame.new(-0.3, 0, 0.25), Vector3.new(0.5, 0.04, 0.45), color, EGG, nil, "Wing", -1)
+	piece(model, cf, CFrame.new(0.3, 0, 0.25), Vector3.new(0.5, 0.04, 0.45), color, EGG, nil, "Wing", 1)
 end
 
 local function buildOwl(model, cf)
-	piece(model, cf, CFrame.new(0, 0, 0), Vector3.one * 1.6, COLORS.Owl, BALL)
-	piece(model, cf, CFrame.new(0, 1.1, 0), Vector3.one * 1.2, COLORS.Owl, BALL, nil, "Head")
-	piece(model, cf, CFrame.new(0, 1.1, -0.5), Vector3.new(0.95, 0.75, 0.2), COLORS.OwlFace, nil, nil, "Head")
-	piece(model, cf, CFrame.new(-0.22, 1.18, -0.62), Vector3.one * 0.28, COLORS.OwlEye, BALL, NEON, "Head")
-	piece(model, cf, CFrame.new(0.22, 1.18, -0.62), Vector3.one * 0.28, COLORS.OwlEye, BALL, NEON, "Head")
-	piece(model, cf, CFrame.new(-0.35, 1.75, 0), Vector3.new(0.2, 0.4, 0.2), COLORS.Owl, nil, nil, "Head")
-	piece(model, cf, CFrame.new(0.35, 1.75, 0), Vector3.new(0.2, 0.4, 0.2), COLORS.Owl, nil, nil, "Head")
+	piece(model, cf, CFrame.new(0, 0, 0), Vector3.new(1.5, 1.9, 1.4), COLORS.Owl, EGG)
+	piece(model, cf, CFrame.new(0, -0.1, -0.45), Vector3.new(1.0, 1.3, 0.6), COLORS.OwlFace, EGG)
+	piece(model, cf, CFrame.new(0, 1.2, 0), Vector3.new(1.35, 1.15, 1.25), COLORS.Owl, EGG, nil, "Head")
+	-- 하트 모양 얼굴판과 큰 눈
+	piece(model, cf, CFrame.new(0, 1.15, -0.45), Vector3.new(1.05, 0.85, 0.35), COLORS.OwlFace, EGG, nil, "Head")
+	piece(model, cf, CFrame.new(-0.24, 1.22, -0.62), Vector3.one * 0.32, COLORS.OwlEye, BALL, NEON, "Head")
+	piece(model, cf, CFrame.new(0.24, 1.22, -0.62), Vector3.one * 0.32, COLORS.OwlEye, BALL, NEON, "Head")
+	piece(model, cf, CFrame.new(-0.24, 1.22, -0.76), Vector3.one * 0.14, COLORS.EyeBlack, BALL, nil, "Head")
+	piece(model, cf, CFrame.new(0.24, 1.22, -0.76), Vector3.one * 0.14, COLORS.EyeBlack, BALL, nil, "Head")
+	piece(model, cf, CFrame.new(0, 1.0, -0.68), Vector3.new(0.14, 0.22, 0.14), COLORS.Beak, EGG, nil, "Head")
+	-- 뾰족한 귀깃
+	piece(model, cf, CFrame.new(-0.42, 1.8, 0) * CFrame.Angles(0, 0, 0.35), Vector3.new(0.22, 0.5, 0.22), COLORS.Owl, EGG, nil, "Head")
+	piece(model, cf, CFrame.new(0.42, 1.8, 0) * CFrame.Angles(0, 0, -0.35), Vector3.new(0.22, 0.5, 0.22), COLORS.Owl, EGG, nil, "Head")
 end
 
 local function buildBat(model, cf)
-	piece(model, cf, CFrame.new(0, 0, 0), Vector3.one * 0.6, COLORS.Bat, BALL)
-	piece(model, cf, CFrame.new(-0.8, 0, 0), Vector3.new(1.2, 0.06, 0.7), COLORS.Bat, nil, nil, "Wing", -1)
-	piece(model, cf, CFrame.new(0.8, 0, 0), Vector3.new(1.2, 0.06, 0.7), COLORS.Bat, nil, nil, "Wing", 1)
+	piece(model, cf, CFrame.new(0, 0, 0), Vector3.new(0.5, 0.5, 0.7), COLORS.Bat, EGG)
+	piece(model, cf, CFrame.new(-0.15, 0.3, -0.15), Vector3.new(0.12, 0.25, 0.12), COLORS.Bat, EGG)
+	piece(model, cf, CFrame.new(0.15, 0.3, -0.15), Vector3.new(0.12, 0.25, 0.12), COLORS.Bat, EGG)
+	piece(model, cf, CFrame.new(-0.8, 0, 0), Vector3.new(1.3, 0.06, 0.75), COLORS.Bat, EGG, nil, "Wing", -1)
+	piece(model, cf, CFrame.new(0.8, 0, 0), Vector3.new(1.3, 0.06, 0.75), COLORS.Bat, EGG, nil, "Wing", 1)
 end
 
 local function buildEyes(model, cf)
@@ -162,14 +215,16 @@ local function buildEyes(model, cf)
 end
 
 local function buildCroc(model, cf)
-	-- 물 위로 코와 눈, 등만 살짝 나와 있어요
-	piece(model, cf, CFrame.new(0, 0.05, -1.8), Vector3.new(1.2, 0.35, 2.4), COLORS.Croc)
-	piece(model, cf, CFrame.new(-0.4, 0.3, -0.5), Vector3.one * 0.5, COLORS.Croc, BALL)
-	piece(model, cf, CFrame.new(0.4, 0.3, -0.5), Vector3.one * 0.5, COLORS.Croc, BALL)
-	piece(model, cf, CFrame.new(-0.4, 0.4, -0.7), Vector3.one * 0.18, COLORS.FrogEye, BALL, NEON)
-	piece(model, cf, CFrame.new(0.4, 0.4, -0.7), Vector3.one * 0.18, COLORS.FrogEye, BALL, NEON)
+	-- 물 위로 둥근 코와 눈, 울퉁불퉁한 등만 살짝 나와 있어요
+	piece(model, cf, CFrame.new(0, 0.05, -1.8), Vector3.new(1.2, 0.4, 2.6), COLORS.Croc, EGG)
+	piece(model, cf, CFrame.new(-0.25, 0.22, -3.0), Vector3.one * 0.22, COLORS.Croc, BALL)
+	piece(model, cf, CFrame.new(0.25, 0.22, -3.0), Vector3.one * 0.22, COLORS.Croc, BALL)
+	piece(model, cf, CFrame.new(-0.4, 0.3, -0.5), Vector3.one * 0.55, COLORS.Croc, BALL)
+	piece(model, cf, CFrame.new(0.4, 0.3, -0.5), Vector3.one * 0.55, COLORS.Croc, BALL)
+	piece(model, cf, CFrame.new(-0.4, 0.42, -0.72), Vector3.one * 0.2, COLORS.FrogEye, BALL, NEON)
+	piece(model, cf, CFrame.new(0.4, 0.42, -0.72), Vector3.one * 0.2, COLORS.FrogEye, BALL, NEON)
 	for i = 1, 4 do
-		piece(model, cf, CFrame.new(0, 0.05, i * 0.9), Vector3.new(0.5, 0.3, 0.5), COLORS.Croc)
+		piece(model, cf, CFrame.new(0, 0.08, i * 0.9), Vector3.new(0.55 - i * 0.06, 0.35, 0.6), COLORS.Croc, EGG)
 	end
 end
 
